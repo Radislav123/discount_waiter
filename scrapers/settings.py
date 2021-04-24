@@ -7,13 +7,13 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME = 'scrapers'
+BOT_NAME = "scrapers"
 
-SPIDER_MODULES = ['scrapers.spiders']
-NEWSPIDER_MODULE = 'scrapers.spiders'
+SPIDER_MODULES = ["scrapers.spiders"]
+NEWSPIDER_MODULE = "scrapers.spiders"
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-# USER_AGENT = 'scrapers (+http://www.yourdomain.com)'
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:70.0) Gecko/20100101 Firefox/70.0"
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True

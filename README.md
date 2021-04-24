@@ -27,12 +27,12 @@ project_env/Scripts/activate.bat    # Windows
 # Описание модулей проекта
 4) [*scrapers*](scrapers) - все, что связано со скрапингом данных с сайтов
 
-## Не модули, но папки
+## Не модули
 1) [*attachments/*](attachments) - обычно не код, но важно для проекта
 2) [*zara_bot_env/*](zara_bot_env) - тут должен лежать интерпретатор
 
 # Веб-скрапинг
 Запуск скраперов:
 ```
-    coming soon...
+scrapy crawl LookingSpider
 ```
