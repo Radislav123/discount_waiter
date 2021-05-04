@@ -8,4 +8,5 @@ __pycache__/
 ### Local ###
 # local (project) python interpreter
 zara_bot_env/
-login_password.py
+# passwords etc.
+constants/secure/
