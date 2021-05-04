@@ -19,7 +19,8 @@
       <sourceFolder url="file://$MODULE_DIR$/scrapers_app" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/constants" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/scripts" isTestSource="false" />
-      <excludeFolder url="file://$MODULE_DIR$/zara_bot_env" />
+      <sourceFolder url="file://$MODULE_DIR$/telegram_bot_app" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/discount_waiter_env" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

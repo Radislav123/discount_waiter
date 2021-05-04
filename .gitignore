@@ -7,6 +7,6 @@ __pycache__/
 
 ### Local ###
 # local (project) python interpreter
-zara_bot_env/
+discount_waiter_env/
 # passwords etc.
 constants/secure/

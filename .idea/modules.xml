@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/zara_bot.iml" filepath="$PROJECT_DIR$/.idea/zara_bot.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/discount_waiter.iml" filepath="$PROJECT_DIR$/.idea/discount_waiter.iml" />
     </modules>
   </component>
 </project>

@@ -5,24 +5,20 @@
 
 # Интерпретер
 [*Как*](https://www.jetbrains.com/help/idea/creating-virtual-environment.html) создать виртуальное окружение.  
-Папка для интерпретера - [*zara_bot_env/*](/zara_bot_env)
+Папка для интерпретера - [*discount_waiter_env/*](/discount_waiter_env)
 
 ## Активация интерпретера
 ```
-source zara_bot_env/bin/activate                # Unix
-zara_bot_env/Scripts/activate.bat               # Windows
+source discount_waiter_env/bin/activate                 # Unix
+discount_waiter_env/Scripts/activate.bat                # Windows
 ```
 Но я использую conda, поэтому смотреть
 [*сюда*](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#activating-an-environment).
 
 # Требуемые библиотеки
-[*Оригинал решения*](https://stackoverflow.com/a/38609653)
-1) установка через conda тех модулей, которые возможно так установить (все из-за scrapy, который через pip на Windows
-нормально не устанавливается)
-    1) Windows: `FOR /F "delims=~" %f in (requirements.txt) DO conda install --yes "%f" || pip install "%f"`
-    2) Unix: `while read requirement; do conda install --yes $requirement || pip install $requirement; done < requirements.txt`
-2) возможно, у Unix проблем не возникает, но на Windows скрипт зацикливается, поэтому, когда он зациклился, 
-его нужно прервать и доустановить оставшиеся пакеты командой `pip install -r requirements.txt`
+`pip install -r requirements.txt`
+У Scrapy могут быть проблемы с установкой на Windows через pip, в таких случаях имеет смысл установить
+conda-окружение и использовать его.
   
 [*requirements.txt*](https://pip.pypa.io/en/stable/user_guide/#requirements-files)  
 Версии библиотек могут быть не самыми новыми, но с ними все должно работать.
@@ -30,10 +26,14 @@ zara_bot_env/Scripts/activate.bat               # Windows
 # Описание модулей проекта
 1) [*discount_waiter/*](/discount_waiter) - проект Django
 2) [*scrapers_app/*](/scrapers_app) - все, что связано со скрапингом данных с сайтов
+    1) [*scrapers_app/scrapers/*](/scrapers_app/scrapers) - скраперы (использование библиотеки Scrapy)
+3) [*telegram_bot_app/*](/telegram_bot_app) - все, что связано с Telegram-ботом
+    1) [*telegram_bot_app/telegram_bot/*](/telegram_bot_app/telegram_bot) -
+       Telegram-бот (использование библиотеки pyTelegramBotAPI)
 
 ## Не модули
 1) [*attachments/*](/attachments) - обычно не код, но важное для проекта
-2) [*zara_bot_env/*](/zara_bot_env) - тут должен лежать интерпретер
+2) [*discount_waiter_env/*](/discount_waiter_env) - тут должен лежать интерпретер
 3) [*constants/*](/constants) - константы
     1) [*constants/secure/*](/constants/secure) - тут должно лежать то, что не сохраняется в git (например, пароли)
 4) [*scripts/*](/scripts) - скрипты проекта Django
@@ -41,8 +41,17 @@ zara_bot_env/Scripts/activate.bat               # Windows
 # База данных
 [*attachments/manuals/DATABASE.md*](/attachments/manuals/DATABASE.md)
 
+# Django
+[*attachments/manuals/DJANGO.md*](/attachments/manuals/DJANGO.md)
+
 # Веб-скрапинг
 [*attachments/manuals/SCRAPING.md*](/attachments/manuals/SCRAPING.md)
 
-# Django
-[*attachments/manuals/DJANGO.md*](/attachments/manuals/DJANGO.md)
+# Telegram-бот
+[*attachments/manuals/TELEGRAM.md*](/attachments/manuals/TELEGRAM.md)
+
+# ToDo
+[*attachments/TODO.md*](/attachments/TODO.md)
+
+# Периодические действия
+[*Timeloop*](https://pypi.org/project/timeloop/)
