@@ -6,13 +6,13 @@
 
 ## Активация интерпретера
 ```
-project_env/Scripts/activate        # Unix
-project_env/Scripts/activate.bat    # Windows
+source zara_bot_env/bin/activate        # Unix
+zara_bot_env/Scripts/activate.bat       # Windows
 ```
 Но я использую conda, поэтому смотреть
 [*сюда*](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#activating-an-environment).
 
-# Требуемые модули
+# Требуемые библиотеки
 [*Оригинал решения*](https://stackoverflow.com/a/38609653)
 1) установка через conda тех модулей, которые возможно так установить (все из-за scrapy, который через pip на Windows
 нормально не устанавливается)
@@ -25,14 +25,15 @@ project_env/Scripts/activate.bat    # Windows
 Версии библиотек могут быть не самыми новыми, но с ними все должно работать.
 
 # Описание модулей проекта
-4) [*scrapers*](scrapers) - все, что связано со скрапингом данных с сайтов
+1) [*discount_waiter/*](discount_waiter) - проект django
+2) [*scrapers_app/*](scrapers_app) - все, что связано со скрапингом данных с сайтов
 
 ## Не модули
 1) [*attachments/*](attachments) - обычно не код, но важно для проекта
-2) [*zara_bot_env/*](zara_bot_env) - тут должен лежать интерпретатор
+2) [*zara_bot_env/*](zara_bot_env) - тут должен лежать интерпретер
 
 # Веб-скрапинг
 Запуск скраперов:
 ```
-scrapy crawl LookingSpider
+scrapy crawl ZaraSpider
 ```

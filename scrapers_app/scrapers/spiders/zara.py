@@ -1,8 +1,8 @@
 import scrapy
 
 
-class LookingSpider(scrapy.Spider):
-    name = "LookingSpider"
+class ZaraSpider(scrapy.Spider):
+    name = "ZaraSpider"
 
     def parse(self, response, **kwargs):
         """
