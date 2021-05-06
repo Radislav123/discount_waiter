@@ -20,6 +20,7 @@
       <sourceFolder url="file://$MODULE_DIR$/constants" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/scripts" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/telegram_bot_app" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/service_app" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/discount_waiter_env" />
     </content>
     <orderEntry type="inheritedJdk" />

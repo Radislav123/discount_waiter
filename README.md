@@ -24,12 +24,13 @@ conda-окружение и использовать его.
 Версии библиотек могут быть не самыми новыми, но с ними все должно работать.
 
 # Описание модулей проекта
-1) [*discount_waiter/*](/discount_waiter) - проект Django
+1) [*discount_waiter/*](/discount_waiter) - настройки проекта Django
 2) [*scrapers_app/*](/scrapers_app) - все, что связано со скрапингом данных с сайтов
     1) [*scrapers_app/scrapers/*](/scrapers_app/scrapers) - скраперы (использование библиотеки Scrapy)
 3) [*telegram_bot_app/*](/telegram_bot_app) - все, что связано с Telegram-ботом
     1) [*telegram_bot_app/telegram_bot/*](/telegram_bot_app/telegram_bot) -
        Telegram-бот (использование библиотеки pyTelegramBotAPI)
+4) [*service_app*](/service_app) - реализация общих для проекта функций, как, например, модели (для БД)
 
 ## Не модули
 1) [*attachments/*](/attachments) - обычно не код, но важное для проекта

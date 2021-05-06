@@ -10,3 +10,4 @@ __pycache__/
 discount_waiter_env/
 # passwords etc.
 constants/secure/
+**/migrations/[0-9]*

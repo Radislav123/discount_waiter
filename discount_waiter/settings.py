@@ -36,10 +36,12 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.postgres",
 
     # project apps
     "scrapers_app.apps.ScrapersAppConfig",
     "telegram_bot_app.apps.TelegramBotAppConfig",
+    "service_app.apps.ServiceAppConfig",
 
     # third-party apps
     "django_extensions",
