@@ -9,5 +9,5 @@ __pycache__/
 # local (project) python interpreter
 discount_waiter_env/
 # passwords etc.
-constants/secure/
+secure/
 **/migrations/[0-9]*

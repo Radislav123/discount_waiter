@@ -11,9 +11,9 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
-from constants.secure import login_password, LOGIN, PASSWORD
-from constants import DATABASE_NAME
-from constants.secure.django_secret_key import SECRET_KEY
+from secure import login_password, LOGIN, PASSWORD
+from service_app.constants import DATABASE_NAME
+from secure.django_secret_key import SECRET_KEY
 
 # Build paths inside the project like this: BASE_DIR / "subdir".
 BASE_DIR = Path(__file__).resolve().parent.parent

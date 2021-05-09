@@ -5,14 +5,14 @@
 
 # Интерпретер
 [*Как*](https://www.jetbrains.com/help/idea/creating-virtual-environment.html) создать виртуальное окружение.  
-Папка для интерпретера - [*discount_waiter_env/*](/discount_waiter_env)
+Папка для интерпретера - [*discount_waiter_env/*](/discount_waiter_env).
 
 ## Активация интерпретера
 ```
 source discount_waiter_env/bin/activate                 # Unix
 discount_waiter_env/Scripts/activate.bat                # Windows
 ```
-Но я использую conda, поэтому смотреть
+Если используется conda-окружение, смотреть
 [*сюда*](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#activating-an-environment).
 
 # Требуемые библиотеки
@@ -35,8 +35,7 @@ conda-окружение и использовать его.
 ## Не модули
 1) [*attachments/*](/attachments) - обычно не код, но важное для проекта
 2) [*discount_waiter_env/*](/discount_waiter_env) - тут должен лежать интерпретер
-3) [*constants/*](/constants) - константы
-    1) [*constants/secure/*](/constants/secure) - тут должно лежать то, что не сохраняется в git (например, пароли)
+3) [*secure/*](/secure) - тут должно лежать то, что не сохраняется в git (например, пароли)
 4) [*scripts/*](/scripts) - скрипты проекта Django
 
 # База данных
