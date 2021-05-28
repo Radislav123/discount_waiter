@@ -2,6 +2,7 @@
 1) если не сказано иное, команды выполняются из корня проекта
 2) полезности расположены в [*attachments/*](/attachments)
 3) проект построен на основе Django
+4) каждый пользователь идентифицируется по имени пользователя (username) и идентификатору чата(chat_id)
 
 # Интерпретер
 [*Как*](https://www.jetbrains.com/help/idea/creating-virtual-environment.html) создать виртуальное окружение.  
@@ -36,7 +37,7 @@ conda-окружение и использовать его.
 1) [*attachments/*](/attachments) - обычно не код, но важное для проекта
 2) [*discount_waiter_env/*](/discount_waiter_env) - тут должен лежать интерпретер
 3) [*secure/*](/secure) - тут должно лежать то, что не сохраняется в git (например, пароли)
-4) [*scripts/*](/scripts) - скрипты проекта Django
+4) [*service_app/scripts/*](/service_app/scripts) - скрипты проекта Django
 
 # База данных
 [*attachments/manuals/DATABASE.md*](/attachments/manuals/DATABASE.md)
@@ -54,4 +55,4 @@ conda-окружение и использовать его.
 [*attachments/TODO.md*](/attachments/TODO.md)
 
 # Периодические действия
-[*Timeloop*](https://pypi.org/project/timeloop/)
+[*timeloop*](https://pypi.org/project/timeloop/)
