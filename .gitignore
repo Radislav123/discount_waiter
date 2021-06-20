@@ -1,7 +1,6 @@
 ### Common ###
 # Byte-compiled / optimized / DLL files / logs
 *.py[cod]
-*.log
 logs/
 __pycache__/
 

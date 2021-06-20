@@ -1,30 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Diagram>
   <ID>DATABASE</ID>
-  <OriginalElement>a215976e-ddd4-4819-b9bf-599d4cfece2d.TABLE:discount_waiter.public.service_app_discounthuntersiteloginpassword</OriginalElement>
+  <OriginalElement />
   <nodes>
-    <node x="53.0" y="151.0">a215976e-ddd4-4819-b9bf-599d4cfece2d.TABLE:discount_waiter.public.service_app_discounthuntersiteloginpassword</node>
-    <node x="0.0" y="0.0">a215976e-ddd4-4819-b9bf-599d4cfece2d.TABLE:discount_waiter.public.service_app_discounthunter</node>
-    <node x="237.0" y="0.0">a215976e-ddd4-4819-b9bf-599d4cfece2d.TABLE:discount_waiter.public.service_app_trackingsite</node>
+    <node x="-56.5" y="22.0">a215976e-ddd4-4819-b9bf-599d4cfece2d.TABLE:discount_waiter.public.service_app_clothestype</node>
+    <node x="291.03532608695656" y="22.0">a215976e-ddd4-4819-b9bf-599d4cfece2d.TABLE:discount_waiter.public.service_app_discounthunter</node>
+    <node x="620.570652173913" y="478.3913043478262">a215976e-ddd4-4819-b9bf-599d4cfece2d.TABLE:discount_waiter.public.service_app_discounthuntersitelink</node>
+    <node x="-56.5" y="478.3913043478262">a215976e-ddd4-4819-b9bf-599d4cfece2d.TABLE:discount_waiter.public.service_app_clothes</node>
+    <node x="107.10099637681162" y="282.0434782608695">a215976e-ddd4-4819-b9bf-599d4cfece2d.TABLE:discount_waiter.public.service_app_clothesdefaultsizes</node>
+    <node x="688.570652173913" y="22.0">a215976e-ddd4-4819-b9bf-599d4cfece2d.TABLE:discount_waiter.public.service_app_trackingsite</node>
   </nodes>
   <notes />
   <edges>
-    <edge source="a215976e-ddd4-4819-b9bf-599d4cfece2d.TABLE:discount_waiter.public.service_app_discounthuntersiteloginpassword" target="a215976e-ddd4-4819-b9bf-599d4cfece2d.TABLE:discount_waiter.public.service_app_trackingsite" relationship="REFERENCES">
-      <point x="84.25" y="-83.5" />
-      <point x="305.75" y="126.0" />
-      <point x="334.5" y="126.0" />
+    <edge source="a215976e-ddd4-4819-b9bf-599d4cfece2d.TABLE:discount_waiter.public.service_app_clothes" target="a215976e-ddd4-4819-b9bf-599d4cfece2d.TABLE:discount_waiter.public.service_app_discounthuntersitelink" relationship="REFERENCES">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="a215976e-ddd4-4819-b9bf-599d4cfece2d.TABLE:discount_waiter.public.service_app_clothesdefaultsizes" target="a215976e-ddd4-4819-b9bf-599d4cfece2d.TABLE:discount_waiter.public.service_app_discounthuntersitelink" relationship="REFERENCES">
+      <point x="0.0" y="0.0" />
+      <point x="413.53532608695656" y="343.5434782608695" />
+      <point x="413.53532608695656" y="561.8913043478262" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="a215976e-ddd4-4819-b9bf-599d4cfece2d.TABLE:discount_waiter.public.service_app_clothes" target="a215976e-ddd4-4819-b9bf-599d4cfece2d.TABLE:discount_waiter.public.service_app_clothestype" relationship="REFERENCES">
+      <point x="-43.0" y="-83.5" />
+      <point x="11.5" y="121.0" />
+      <point x="41.0" y="121.0" />
+      <point x="0.0" y="39.5" />
+    </edge>
+    <edge source="a215976e-ddd4-4819-b9bf-599d4cfece2d.TABLE:discount_waiter.public.service_app_discounthuntersitelink" target="a215976e-ddd4-4819-b9bf-599d4cfece2d.TABLE:discount_waiter.public.service_app_trackingsite" relationship="REFERENCES">
+      <point x="65.75" y="-72.5" />
+      <point x="817.820652173913" y="137.0" />
+      <point x="786.070652173913" y="137.0" />
       <point x="0.0" y="50.5" />
     </edge>
-    <edge source="a215976e-ddd4-4819-b9bf-599d4cfece2d.TABLE:discount_waiter.public.service_app_discounthuntersiteloginpassword" target="a215976e-ddd4-4819-b9bf-599d4cfece2d.TABLE:discount_waiter.public.service_app_discounthunter" relationship="REFERENCES">
-      <point x="-84.25" y="-83.5" />
-      <point x="137.25" y="126.0" />
-      <point x="108.5" y="126.0" />
+    <edge source="a215976e-ddd4-4819-b9bf-599d4cfece2d.TABLE:discount_waiter.public.service_app_clothesdefaultsizes" target="a215976e-ddd4-4819-b9bf-599d4cfece2d.TABLE:discount_waiter.public.service_app_clothestype" relationship="REFERENCES">
+      <point x="-81.33333333333331" y="-72.5" />
+      <point x="147.7676630434783" y="121.0" />
+      <point x="41.0" y="121.0" />
+      <point x="0.0" y="39.5" />
+    </edge>
+    <edge source="a215976e-ddd4-4819-b9bf-599d4cfece2d.TABLE:discount_waiter.public.service_app_discounthuntersitelink" target="a215976e-ddd4-4819-b9bf-599d4cfece2d.TABLE:discount_waiter.public.service_app_discounthunter" relationship="REFERENCES">
+      <point x="-65.75" y="-72.5" />
+      <point x="686.320652173913" y="275.1956521739131" />
+      <point x="413.53532608695656" y="275.1956521739131" />
       <point x="0.0" y="50.5" />
     </edge>
   </edges>
-  <settings layout="Hierarchic" zoom="1.0" showDependencies="false" x="245.5" y="159.0" />
+  <settings layout="Hierarchic" zoom="0.9999999999999999" showDependencies="false" x="602.6120337463047" y="386.50000000000006" />
   <SelectedNodes>
-    <node>a215976e-ddd4-4819-b9bf-599d4cfece2d.TABLE:discount_waiter.public.service_app_discounthuntersiteloginpassword</node>
+    <node>a215976e-ddd4-4819-b9bf-599d4cfece2d.TABLE:discount_waiter.public.service_app_clothesdefaultsizes</node>
   </SelectedNodes>
   <Categories>
     <Category>Columns</Category>
