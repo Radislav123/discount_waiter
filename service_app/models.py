@@ -55,8 +55,8 @@ class ClothesType(models.Model):
     )
     en_to_rus = dict(zip(name_choices, name_choices_rus))
     rus_to_en = dict(zip(name_choices_rus, name_choices))
-    name = models.CharField(choices = ((x, x) for x in name_choices), max_length = 40, null = True)
-    name_rus = models.CharField(choices = ((x, x) for x in name_choices_rus), max_length = 40, null = True)
+    name = models.CharField(choices = ((x, x) for x in name_choices), max_length = 40)
+    name_rus = models.CharField(choices = ((x, x) for x in name_choices_rus), max_length = 40)
 
 
 class ClothesDefaultSizes(models.Model):
@@ -71,7 +71,7 @@ class Clothes(models.Model):
     """Таблица с отслеживаемой одеждой."""
 
     discount_hunter_site_link = models.ForeignKey(DiscountHunterSiteLink, on_delete = models.PROTECT)
-    type = models.ForeignKey(ClothesType, on_delete = models.PROTECT)
+    type = models.ForeignKey(ClothesType, on_delete = models.PROTECT, null = True)
     # ссылка на страницу одежды на сайте
     link = models.URLField()
     # если min_size == max_size, то размер нужен только один
