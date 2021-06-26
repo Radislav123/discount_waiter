@@ -1,9 +1,28 @@
-from service_app.constants import LOG_FORMAT, LOG_FOLDER
+from service_app.constants import *
 from service_app import models
 from pathlib import Path
 # noinspection PyPackageRequirements
 import telebot
 import logging
+
+
+class ProjectFormatter(logging.Formatter):
+    def format(self, record):
+        if hasattr(record, REAL_FUNCTION_NAME):
+            # noinspection PyUnresolvedReferences
+            record.funcName = record.real_function_name
+        if hasattr(record, REAL_FILENAME):
+            # noinspection PyUnresolvedReferences
+            record.filename = record.real_filename
+        if hasattr(record, LOG_DECORATOR):
+            # noinspection PyUnresolvedReferences
+            if record.log_decorator:
+                record.lineno = 0
+        return super().format(record)
+
+
+def get_function_real_filename(function):
+    return function.__globals__["__file__"].split('\\')[-1]
 
 
 def get_log_filepath(filename):
@@ -15,7 +34,7 @@ def get_debug_handler():
     log_filename = "debug"
     handler = logging.FileHandler(get_log_filepath(log_filename))
     handler.setLevel(logging.DEBUG)
-    handler.setFormatter(logging.Formatter(LOG_FORMAT))
+    handler.setFormatter(ProjectFormatter(LOG_FORMAT))
     return handler
 
 
@@ -24,7 +43,7 @@ def get_info_handler():
     log_filename = "info"
     handler = logging.FileHandler(get_log_filepath(log_filename))
     handler.setLevel(logging.INFO)
-    handler.setFormatter(logging.Formatter(LOG_FORMAT))
+    handler.setFormatter(ProjectFormatter(LOG_FORMAT))
     return handler
 
 
@@ -32,7 +51,7 @@ def get_info_handler():
 def get_console_handler():
     handler = logging.StreamHandler()
     handler.setLevel(logging.WARNING)
-    handler.setFormatter(logging.Formatter(LOG_FORMAT))
+    handler.setFormatter(ProjectFormatter(LOG_FORMAT))
     return handler
 
 
@@ -70,9 +89,20 @@ def get_logger(logger_name):
             def wrapper(*args, **kwargs):
                 telegram_message = args[0]
                 user_identification = get_user_identification(telegram_message)
-                logger.info(user_identification + f" - determines \"{command_name}\" command call")
+                log_extra = {
+                    REAL_FUNCTION_NAME: command_function.__name__,
+                    REAL_FILENAME: get_function_real_filename(command_function),
+                    LOG_DECORATOR: True
+                }
+                logger.info(
+                    user_identification + f" - determines \"{command_name}\" command call",
+                    extra = log_extra
+                )
                 result = command_function(*args, **kwargs)
-                logger.info(user_identification + f" - finishes \"{command_name}\" command")
+                logger.info(
+                    user_identification + f" - finishes \"{command_name}\" command",
+                    extra = log_extra
+                )
                 return result
 
             return wrapper
@@ -86,9 +116,20 @@ def get_logger(logger_name):
         def wrapper(*args, **kwargs):
             callback = args[0]
             user_identification = get_user_identification(callback)
-            logger.info(user_identification + f" - determines \"{callback_function.__name__}\" call")
+            log_extra = {
+                REAL_FUNCTION_NAME: callback_function.__name__,
+                REAL_FILENAME: get_function_real_filename(callback_function),
+                LOG_DECORATOR: True
+            }
+            logger.info(
+                user_identification + f" - determines \"{callback_function.__name__}\" call",
+                extra = log_extra
+            )
             result = callback_function(*args, **kwargs)
-            logger.info(user_identification + f" - finishes \"{callback_function.__name__}\"")
+            logger.info(
+                user_identification + f" - finishes \"{callback_function.__name__}\"",
+                extra = log_extra
+            )
             return result
 
         return wrapper
