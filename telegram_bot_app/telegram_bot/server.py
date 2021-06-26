@@ -134,16 +134,21 @@ def remove_site_callback_handler(callback):
 @bot.callback_query_handler(func = lambda callback: callback.data.startswith(SITE_CREDENTIALS))
 @logger.log_telegram_callback
 def site_credentials_callback_handler(callback):
-    link = get_discount_hunter_site_link_by_chat_id_and_site_name(callback.message.chat.id, get_callback_data(callback))
-    message_text = f"логин : {link.login}\nпароль : {link.password}"
-    edit_message_return = bot.edit_message_text(message_text, callback.message.chat.id, callback.message.id)
-    delayed_task(60, bot.delete_message, callback.message.chat.id, callback.message.id)
-    logger.log_inside_telegram_command(
-        logging.INFO,
-        callback,
-        f"site credentials for \"{link.site.name}\" site will be deleted after 60  seconds"
-    )
-    return edit_message_return
+    callback_data = get_callback_data(callback)
+    if callback_data != CANCEL_BUTTON_TEXT:
+        link = get_discount_hunter_site_link_by_chat_id_and_site_name(callback.message.chat.id, callback_data)
+        message_text = f"логин : {link.login}\nпароль : {link.password}"
+        handler_return = bot.edit_message_text(message_text, callback.message.chat.id, callback.message.id)
+        delayed_task(60, bot.delete_message, callback.message.chat.id, callback.message.id)
+        logger.log_inside_telegram_command(
+            logging.INFO,
+            callback,
+            f"site credentials for \"{link.site.name}\" site will be deleted after 60  seconds"
+        )
+    else:
+        handler_return = bot.edit_message_text(CANCEL_BUTTON_TEXT, callback.message.chat.id, callback.message.id)
+        logger.log_inside_telegram_command(logging.INFO, callback, "cancel button was pressed")
+    return handler_return
 
 
 @bot.message_handler(commands = [START_COMMAND])
@@ -245,12 +250,15 @@ def get_sites_command(message):
 
 @bot.message_handler(commands = [SITE_CREDENTIALS])
 @logger.log_telegram_command(SITE_CREDENTIALS)
-def site_credentials(message):
+def site_credentials_command(message):
     """Временно показывает логин и пароль для отслеживаемого сайта."""
 
     tracking_sites_names = get_discount_hunter_tracking_sites_names(message.chat.id)
     keys = get_key_row_from_names(SITE_CREDENTIALS, tracking_sites_names)
-    reply_markup = get_keyboard_markup([keys])
+    reply_markup = get_keyboard_markup_with_cancel_button(
+        [keys],
+        CALLBACK_DATA_CANCEL_TEMPLATE.format(command = SITE_CREDENTIALS)
+    )
     if len(keys) > 0:
         response_text = SITE_CREDENTIALS_RESPONSE_TEXT
     else:
