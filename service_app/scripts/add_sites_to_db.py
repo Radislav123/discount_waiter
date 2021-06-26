@@ -1,7 +1,11 @@
 # noinspection PyUnresolvedReferences
 import pep8_e402_import_django
 from service_app.constants import TRACKING_SITES
+from service_app.logger import get_logger
 from service_app import models
+
+
+logger = get_logger(__name__)
 
 
 def add_sites():
@@ -12,13 +16,13 @@ def add_sites():
         )
         if len(models.TrackingSite.objects.filter(name = site_name)) == 0:
             site.save()
-            print(f"{site_name} - successfully added.")
+            logger.info(f"{site_name} site - successfully added to the db")
         else:
             update_data = site.__dict__.copy()
             del update_data["_state"]
             del update_data["id"]
             models.TrackingSite.objects.filter(name = site_name).update(**update_data)
-            print(f"{site_name} - successfully updated.")
+            logger.info(f"{site_name} site - successfully updated in the db")
 
 
 def run():

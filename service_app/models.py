@@ -34,16 +34,29 @@ class ClothesType(models.Model):
     """Таблица с типами одежды."""
 
     name_choices = (
-        ("underwear", "нательное бельё"),
-        ("corsetry", "корсетное изделие"),
-        ("outerwear", "верхняя одежда"),
-        ("headdress", "головной убор"),
-        ("hosiery", "чулочно-носочное изделие"),
-        ("glove_product", "перчаточное изделие"),
-        ("shawl_or_scarf", "платочно-шарфовое изделие"),
-        ("footwear", "обувь"),
+        "underwear",
+        "corsetry",
+        "outerwear",
+        "headdress",
+        "hosiery",
+        "glove product",
+        "shawl or scarf",
+        "footwear",
     )
-    name = models.CharField(choices = name_choices, max_length = 40)
+    name_choices_rus = (
+        "нательное бельё",
+        "корсетное изделие",
+        "верхняя одежда",
+        "головной убор",
+        "чулочно-носочное изделие",
+        "перчаточное изделие",
+        "платочно-шарфовое изделие",
+        "обувь",
+    )
+    en_to_rus = dict(zip(name_choices, name_choices_rus))
+    rus_to_en = dict(zip(name_choices_rus, name_choices))
+    name = models.CharField(choices = ((x, x) for x in name_choices), max_length = 40, null = True)
+    name_rus = models.CharField(choices = ((x, x) for x in name_choices_rus), max_length = 40, null = True)
 
 
 class ClothesDefaultSizes(models.Model):

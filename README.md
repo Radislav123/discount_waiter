@@ -51,8 +51,5 @@ conda-окружение и использовать его.
 # Telegram-бот
 [*attachments/manuals/TELEGRAM.md*](/attachments/manuals/TELEGRAM.md)
 
-# ToDo
-[*attachments/TODO.md*](/attachments/TODO.md)
-
 # Периодические действия
 [*timeloop*](https://pypi.org/project/timeloop/)

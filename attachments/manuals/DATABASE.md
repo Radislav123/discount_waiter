@@ -6,8 +6,8 @@
     1) логин и пароль есть в [*secure/login_password.py*](/secure/login_password.py) (словарь DATABASE)
 3) [*выдать пользователю все привилегии*](#выдать-пользователю-все-привилегии)
 4) [*сделать пользователя суперпользователем*](#сделать-пользователя-суперпользователем)
-5) добавить в базу отслеживаемые сайты, выполнив скрип [*add_sites_to_db.py*](/service_app/scripts/add_sites_to_db.py)
-    1) `python manage.py runscript add_sites_to_db`
+5) инициализировать базу данных, запустив скрип [*init_db.py*](/service_app/scripts/init_db.py)
+    1) `python manage.py runscript init_db`
 
 ### Особенные типы полей (для PostgreSQL)
 1) [*HStoreField*](https://docs.djangoproject.com/en/3.2/ref/contrib/postgres/fields/#hstorefield) - для хранения
