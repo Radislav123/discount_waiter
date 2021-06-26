@@ -20,8 +20,8 @@ def get_debug_handler():
 
 
 # хендлер для логов уровня "info" и выше (в файл)
-def get_normal_handler():
-    log_filename = "normal"
+def get_info_handler():
+    log_filename = "info"
     handler = logging.FileHandler(get_log_filepath(log_filename))
     handler.setLevel(logging.INFO)
     handler.setFormatter(logging.Formatter(LOG_FORMAT))
@@ -61,7 +61,7 @@ def get_logger(logger_name):
     logger = logging.getLogger(logger_name)
     logger.setLevel(logging.DEBUG)
     logger.addHandler(get_debug_handler())
-    logger.addHandler(get_normal_handler())
+    logger.addHandler(get_info_handler())
     logger.addHandler(get_console_handler())
 
     # для логирования начала и окончания выполнения команды Telegram-бота

@@ -1,10 +1,13 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="telegram bot" type="PythonConfigurationType" factoryName="Python">
     <log_file alias="debug" path="$PROJECT_DIR$/logs/debug.log" />
-    <log_file alias="normal" path="$PROJECT_DIR$/logs/normal.log" />
+    <log_file alias="info" path="$PROJECT_DIR$/logs/info.log" />
     <module name="discount_waiter" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
+    <envs>
+      <env name="PYTHONUNBUFFERED" value="1" />
+    </envs>
     <option name="SDK_HOME" value="$PROJECT_DIR$/discount_waiter_env/Scripts/python.exe" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
     <option name="IS_MODULE_SDK" value="false" />
