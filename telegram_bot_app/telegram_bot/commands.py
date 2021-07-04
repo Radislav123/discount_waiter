@@ -17,5 +17,8 @@ REMOVE_SITE_COMMAND_DESCRIPTION = "убрать сайт из отслежива
 TRACKED_SITES_COMMAND = "tracked_sites"
 TRACKED_SITES_COMMAND_DESCRIPTION = "показать отслеживаемые сайты"
 
-SITE_CREDENTIALS = "site_credentials"
-SITE_CREDENTIALS_DESCRIPTION = "показать логин и пароль для отслеживаемого сайта (на 1 минуту)"
+SITE_CREDENTIALS_COMMAND = "site_credentials"
+SITE_CREDENTIALS_COMMAND_DESCRIPTION = "показать логин и пароль для отслеживаемого сайта (на 1 минуту)"
+
+ADD_CLOTHES_COMMAND = "add_clothes"
+ADD_CLOTHES_COMMAND_DESCRIPTION = "добавить элемент одежды для отслеживания"

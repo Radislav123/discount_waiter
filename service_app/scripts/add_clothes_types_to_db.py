@@ -8,7 +8,7 @@ logger = get_logger(__name__)
 
 
 def add_clothes_types():
-    for type_name in zip(models.ClothesType.name_choices, models.ClothesType.name_choices_rus):
+    for type_name in zip(models.ClothesType.name_choices_en, models.ClothesType.name_choices_rus):
         clothes_type = models.ClothesType(
             name = type_name[0],
             name_rus = type_name[1]

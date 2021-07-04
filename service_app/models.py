@@ -33,7 +33,7 @@ class DiscountHunterSiteLink(models.Model):
 class ClothesType(models.Model):
     """Таблица с типами одежды."""
 
-    name_choices = (
+    name_choices_en = (
         "underwear",
         "corsetry",
         "outerwear",
@@ -42,6 +42,7 @@ class ClothesType(models.Model):
         "glove product",
         "shawl or scarf",
         "footwear",
+        "undefined",
     )
     name_choices_rus = (
         "нательное бельё",
@@ -52,10 +53,11 @@ class ClothesType(models.Model):
         "перчаточное изделие",
         "платочно-шарфовое изделие",
         "обувь",
+        "неопределенный",
     )
-    en_to_rus = dict(zip(name_choices, name_choices_rus))
-    rus_to_en = dict(zip(name_choices_rus, name_choices))
-    name = models.CharField(choices = ((x, x) for x in name_choices), max_length = 40)
+    en_to_rus = dict(zip(name_choices_en, name_choices_rus))
+    rus_to_en = dict(zip(name_choices_rus, name_choices_en))
+    name = models.CharField(choices = ((x, x) for x in name_choices_en), max_length = 40)
     name_rus = models.CharField(choices = ((x, x) for x in name_choices_rus), max_length = 40)
 
 
@@ -73,7 +75,18 @@ class Clothes(models.Model):
     discount_hunter_site_link = models.ForeignKey(DiscountHunterSiteLink, on_delete = models.PROTECT)
     type = models.ForeignKey(ClothesType, on_delete = models.PROTECT, null = True)
     # ссылка на страницу одежды на сайте
-    link = models.URLField()
-    # если min_size == max_size, то размер нужен только один
-    min_size = models.CharField(max_length = 20)
-    max_size = models.CharField(max_length = 20)
+    url = models.URLField()
+    sizes = ArrayField(base_field = models.CharField(max_length = 20), null = True)
+    sizes_on_site = ArrayField(base_field = models.CharField(max_length = 20), null = True)
+
+    def sizes_to_order(self):
+        sizes_to_order = []
+        clothes_default_sizes = ClothesDefaultSizes.objects.get(
+            discount_hunter_site_link = self.discount_hunter_site_link,
+            type = self.type
+        )
+        if self.sizes is not None:
+            sizes_to_order = self.sizes
+        elif clothes_default_sizes is not None:
+            sizes_to_order = clothes_default_sizes.sizes
+        return sizes_to_order

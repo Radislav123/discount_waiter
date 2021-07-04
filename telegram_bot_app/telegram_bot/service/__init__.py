@@ -7,6 +7,7 @@ from service_app import models
 import platform
 # noinspection PyPackageRequirements
 import telebot
+import json
 import re
 
 
@@ -45,7 +46,69 @@ def set_bot_command_list():
     return bot.set_my_commands(bot_commands)
 
 
-def get_keyboard_markup(rows):
+# если names словарь, то ключи воспринимаются как названия (текст для кнопок), а значения как callback_data
+def get_inline_key_rows_from_names(
+        command,
+        names,
+        forbidden_names = (),
+        keys_in_row = 3,
+        handler_number = 0,
+        extras = None
+):
+    keys = []
+    if type(names) is list:
+        callback_data = {x: x for x in names}
+    else:
+        callback_data = names
+    for name in names:
+        if name not in forbidden_names:
+            keys.append(
+                telebot.types.InlineKeyboardButton(
+                    text = name,
+                    callback_data = CALLBACK_DATA_TEMPLATE.format(
+                        command = command,
+                        handler_number = handler_number,
+                        data = callback_data[name],
+                        extras = extras if extras else {}
+                    )
+                )
+            )
+
+    rows = []
+    for i in range((len(keys) // keys_in_row)):
+        rows.append(keys[i * keys_in_row: i * keys_in_row + keys_in_row])
+    if len(keys) % keys_in_row:
+        rows.append(keys[-1 * keys_in_row + 1:])
+    return rows
+
+
+def get_inline_cancel_key(command, handler_number = 0, extras = None):
+    return [
+        telebot.types.InlineKeyboardButton(
+            text = CANCEL_BUTTON_TEXT_RUS,
+            callback_data = CALLBACK_DATA_CANCEL_TEMPLATE.format(
+                command = command,
+                handler_number = handler_number,
+                extras = extras if extras else {}
+            )
+        )
+    ]
+
+
+def get_inline_finish_key(command, handler_number = 0, extras = None):
+    return [
+        telebot.types.InlineKeyboardButton(
+            text = FINISH_BUTTON_TEXT_RUS,
+            callback_data = CALLBACK_DATA_FINISH_TEMPLATE.format(
+                command = command,
+                handler_number = handler_number,
+                extras = extras if extras else {}
+            )
+        )
+    ]
+
+
+def get_inline_keyboard_markup(*rows):
     """Возвращает готовую разметку кнопок."""
 
     # rows должен быть типа [[telebot.types.InlineKeyboardButton,..],..]
@@ -55,23 +118,16 @@ def get_keyboard_markup(rows):
     return keyboard_markup
 
 
-def get_keyboard_markup_with_cancel_button(rows, cancel_button_callback_data):
-    """Как get_keyboard_markup, только последней строкой добавляет кнопку отмены."""
-
-    rows = list(rows)
-    rows.append(
-        [
-            telebot.types.InlineKeyboardButton(
-                text = CANCEL_BUTTON_TEXT,
-                callback_data = cancel_button_callback_data
-            )
-        ]
-    )
-    return get_keyboard_markup(rows)
+def get_callback_handler_number(callback):
+    return int(re.findall(CALLBACK_REGEX_TEMPLATE, callback.data)[0][2])
 
 
 def get_callback_data(callback):
-    return re.findall(CALLBACK_REGEX_TEMPLATE, callback.data)[0][2]
+    return re.findall(CALLBACK_REGEX_TEMPLATE, callback.data)[0][4]
+
+
+def get_callback_extras(callback):
+    return json.loads(re.findall(CALLBACK_REGEX_TEMPLATE, callback.data)[0][6])
 
 
 def get_discount_hunter_tracking_sites_names(chat_id):
@@ -79,19 +135,6 @@ def get_discount_hunter_tracking_sites_names(chat_id):
         discount_hunter = models.DiscountHunter.objects.get(telegram_chat_id = chat_id)
     )
     return [link.site.name for link in site_links if link.active]
-
-
-def get_key_row_from_names(command, names, forbidden_names = ()):
-    keys = []
-    for name in names:
-        if name not in forbidden_names:
-            keys.append(
-                telebot.types.InlineKeyboardButton(
-                    text = name,
-                    callback_data = CALLBACK_DATA_TEMPLATE.format(command = command, data = name)
-                )
-            )
-    return keys
 
 
 def update_model_instance(model, model_instance, filters):

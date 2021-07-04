@@ -136,7 +136,7 @@ def get_logger(logger_name):
 
     logger.log_telegram_callback = log_telegram_callback
 
-    # для логирования внутри команды Telegram-бота
+    # для логирования внутри команды (или обратного вызова) Telegram-бота
     def log_inside_telegram_command(log_level, telegram_message, log_message):
         log_message = get_user_identification(telegram_message) + " - " + log_message
         return logger.log(log_level, log_message)
