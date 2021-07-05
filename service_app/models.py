@@ -72,21 +72,23 @@ class ClothesDefaultSizes(models.Model):
 class Clothes(models.Model):
     """Таблица с отслеживаемой одеждой."""
 
+    name = models.CharField(max_length = 200, null = True)
     discount_hunter_site_link = models.ForeignKey(DiscountHunterSiteLink, on_delete = models.PROTECT)
-    type = models.ForeignKey(ClothesType, on_delete = models.PROTECT, null = True)
+    type = models.ForeignKey(ClothesType, on_delete = models.PROTECT)
     # ссылка на страницу одежды на сайте
-    url = models.URLField()
-    sizes = ArrayField(base_field = models.CharField(max_length = 20), null = True)
+    url = models.URLField(max_length = 400)
+    sizes = ArrayField(base_field = models.CharField(max_length = 20))
     sizes_on_site = ArrayField(base_field = models.CharField(max_length = 20), null = True)
 
+    @property
     def sizes_to_order(self):
         sizes_to_order = []
-        clothes_default_sizes = ClothesDefaultSizes.objects.get(
+        clothes_default_sizes = ClothesDefaultSizes.objects.filter(
             discount_hunter_site_link = self.discount_hunter_site_link,
             type = self.type
         )
         if self.sizes is not None:
             sizes_to_order = self.sizes
-        elif clothes_default_sizes is not None:
-            sizes_to_order = clothes_default_sizes.sizes
+        elif clothes_default_sizes.exists():
+            sizes_to_order = clothes_default_sizes.first().sizes
         return sizes_to_order

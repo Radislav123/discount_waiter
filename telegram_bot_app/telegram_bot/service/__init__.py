@@ -78,7 +78,7 @@ def get_inline_key_rows_from_names(
     for i in range((len(keys) // keys_in_row)):
         rows.append(keys[i * keys_in_row: i * keys_in_row + keys_in_row])
     if len(keys) % keys_in_row:
-        rows.append(keys[-1 * keys_in_row + 1:])
+        rows.append(keys[len(keys) // keys_in_row * keys_in_row:])
     return rows
 
 

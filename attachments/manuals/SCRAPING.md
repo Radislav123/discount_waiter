@@ -1,7 +1,3 @@
 ### Используется
-[*Scrapy*](https://pypi.org/project/Scrapy/)
-
-### Запуск скраперов вручную
-```commandline
-scrapy crawl ZaraSpider
-```
+1) [*lxml*](https://pypi.org/project/lxml/)
+2) [*requests*](https://pypi.org/project/requests/)

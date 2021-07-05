@@ -1,5 +1,6 @@
 # noinspection PyUnresolvedReferences
 import pep8_e402_import_django
+from scrapers_app.scrapers.zara_clothes_info_scraper import ZaraClothesInfoScraper
 from telegram_bot_app.telegram_bot.service.time_related import *
 from django.core.exceptions import ObjectDoesNotExist
 from telegram_bot_app.telegram_bot.service import *
@@ -24,7 +25,7 @@ def cancel_button_in_callback(callback_function):
                 callback.message.chat.id,
                 callback.message.id
             )
-            logger.log_inside_telegram_command(logging.INFO, callback, "cancel button was pressed")
+            logger.log_inside_telegram_command(logging.DEBUG, callback, "cancel button was pressed")
         return handler_return
 
     return wrapper
@@ -41,7 +42,7 @@ def start_command(message):
             telegram_chat_id = message.chat.id,
             telegram_user_id = message.from_user.id
         ).get()
-        logger.log_inside_telegram_command(logging.INFO, message, "discount hunter was found")
+        logger.log_inside_telegram_command(logging.DEBUG, message, "discount hunter was found")
     except ObjectDoesNotExist:
         discount_hunter = models.DiscountHunter(
             telegram_chat_id = message.chat.id,
@@ -51,7 +52,7 @@ def start_command(message):
             telegram_user_last_name = message.from_user.last_name
         )
         discount_hunter.save()
-        logger.log_inside_telegram_command(logging.INFO, message, "discount hunter was created")
+        logger.log_inside_telegram_command(logging.DEBUG, message, "discount hunter was created")
     return bot.send_message(message.chat.id, START_COMMAND_RESPONSE_TEXT)
 
 
@@ -112,7 +113,7 @@ def add_site_callback_handler(callback):
         not link.active
     )
     logger.log_inside_telegram_command(
-        logging.INFO,
+        logging.DEBUG,
         callback,
         f"user login was requested for \"{link.site.name}\" site"
     )
@@ -135,7 +136,7 @@ def add_site_get_login_step(user_message, bot_message, link, update):
         update
     )
     logger.log_inside_telegram_command(
-        logging.INFO,
+        logging.DEBUG,
         user_message,
         f"user password was requested for \"{link.site.name}\" site"
     )
@@ -147,7 +148,7 @@ def add_site_get_password_step(user_message, bot_message, link, update):
     if not update:
         link.save()
         logger.log_inside_telegram_command(
-            logging.INFO,
+            logging.DEBUG,
             user_message,
             f"discount_hunter_site_link for \"{link.site.name}\" site was saved"
         )
@@ -158,7 +159,7 @@ def add_site_get_password_step(user_message, bot_message, link, update):
         }
         update_model_instance(models.DiscountHunterSiteLink, link, filters)
         logger.log_inside_telegram_command(
-            logging.INFO,
+            logging.DEBUG,
             user_message,
             f"discount_hunter_site_link for \"{link.site.name}\" site was updated"
         )
@@ -209,7 +210,7 @@ def remove_site_callback_handler(callback):
         callback.message.id
     )
     logger.log_inside_telegram_command(
-        logging.INFO,
+        logging.DEBUG,
         callback,
         f"discount_hunter_site_link for \"{link.site.name}\" site was deactivated"
     )
@@ -265,7 +266,8 @@ def site_credentials_callback_handler(callback):
     logger.log_inside_telegram_command(
         logging.INFO,
         callback,
-        f"site credentials for \"{link.site.name}\" site will be deleted after {DELETE_SITE_CREDENTIALS_OFFSET} seconds"
+        f"site credentials for \"{link.site.name}\" site will be deleted"
+        f" from the chat after {DELETE_SITE_CREDENTIALS_OFFSET} seconds"
     )
     return handler_return
 
@@ -351,7 +353,7 @@ def add_clothes_callback_handler_1(callback):
     )
     bot.register_next_step_handler(
         callback.message,
-        add_clothes_get_clothes_url_step,
+        add_clothes_get_url_step,
         callback.message,
         models.TrackingSite.objects.get(id = get_callback_extras(callback)),
         models.ClothesType.objects.get(name = get_callback_data(callback))
@@ -359,8 +361,7 @@ def add_clothes_callback_handler_1(callback):
 
 
 @logger.log_telegram_callback
-def add_clothes_get_clothes_url_step(user_message, bot_message, site, clothes_type):
-
+def add_clothes_get_url_step(user_message, bot_message, site, clothes_type):
     # в extras передается id инстанса Clothes
     clothes = models.Clothes(
         discount_hunter_site_link = get_discount_hunter_site_link_by_chat_id_and_site_name(
@@ -368,14 +369,14 @@ def add_clothes_get_clothes_url_step(user_message, bot_message, site, clothes_ty
             site.name
         ),
         type = clothes_type,
-        url = user_message.text
+        url = user_message.text,
+        sizes = []
     )
-    # тут нужно получить с сайта размеры одежды и дать выбрать пользователю
-    # todo: rewrite sizes detection with scrapy (должен дописывать в поле sizes_on_site)
-    sizes = ["S", "L", "XL"]
+    # поля name и sizes_on_site берутся с сайта
+    ZaraClothesInfoScraper.run(clothes = clothes)
     clothes.save()
-    key_extras = clothes.id
 
+    key_extras = clothes.id
     next_handler_number = 2
     # выбор размеров
     rows = get_inline_key_rows_from_names(
@@ -389,6 +390,7 @@ def add_clothes_get_clothes_url_step(user_message, bot_message, site, clothes_ty
         get_inline_finish_key(ADD_CLOTHES_COMMAND, next_handler_number, key_extras)
     )
 
+    bot.delete_message(user_message.chat.id, user_message.id)
     bot.edit_message_text(
         ADD_CLOTHES_REQUEST_CLOTHES_SIZE_TEXT,
         bot_message.chat.id,
@@ -420,15 +422,29 @@ def add_clothes_callback_handler_2(callback):
     remove_size_callback_prefix = "remove-"
 
     if callback_data == FINISH_BUTTON_TEXT_EN:
+        if len(clothes.sizes_to_order) == 1:
+            command_finish_text = ADD_CLOTHES_COMMAND_FINISH_TEMPLATE.format(
+                clothes_name = clothes.name,
+                sizes_to_order = clothes.sizes_to_order[0]
+            )
+        elif len(clothes.sizes_to_order) > 1:
+            command_finish_text = ADD_CLOTHES_COMMAND_FINISH_TEMPLATE_1.format(
+                clothes_name = clothes.name,
+                sizes_to_order = ", ".join(clothes.sizes_to_order)
+            )
+        else:
+            command_finish_text = ADD_CLOTHES_COMMAND_FINISH_TEMPLATE_2.format(clothes_name = clothes.name)
         bot.edit_message_text(
-            ADD_CLOTHES_COMMAND_FINISH_TEMPLATE.format(clothes_url = clothes.url, sizes = clothes.sizes_to_order)
+            command_finish_text,
+            callback.message.chat.id,
+            callback.message.id,
         )
     else:
         if callback_data.startswith(remove_size_callback_prefix):
-            clothes.sizes.remove(callback_data)
+            clothes.sizes.remove(callback_data.removeprefix(remove_size_callback_prefix))
             clothes.save()
             logger.log_inside_telegram_command(
-                logging.INFO,
+                logging.DEBUG,
                 callback,
                 f"\"{callback_data}\" size was removed for {clothes.discount_hunter_site_link.site.name} site"
                 f" and clothes with url - ({clothes.url})."
@@ -437,7 +453,7 @@ def add_clothes_callback_handler_2(callback):
             clothes.sizes.append(callback_data)
             clothes.save()
             logger.log_inside_telegram_command(
-                logging.INFO,
+                logging.DEBUG,
                 callback,
                 f"\"{callback_data}\" size was added for {clothes.discount_hunter_site_link.site.name} site"
                 f" and clothes with url - ({clothes.url})."
@@ -458,7 +474,7 @@ def add_clothes_callback_handler_2(callback):
         bot.edit_message_text(
             ADD_CLOTHES_REQUEST_CLOTHES_SIZE_TEXT,
             callback.message.chat.id,
-            callback.message,
+            callback.message.id,
             reply_markup = keyboard_markup
         )
 
@@ -494,9 +510,9 @@ if __name__ == '__main__':
         logger.info("telegram bot was started")
 
         # уровень info в консоль не пишется, но видеть, что бот запустился, хочется и в консоли
-        local_machine_text = "running on the local machine"
-        logger.info(local_machine_text)
-        print(local_machine_text)
+        running_on_local_machine_text = "running on the local machine"
+        logger.info(running_on_local_machine_text)
+        print(running_on_local_machine_text)
 
         bot.polling(none_stop = True)
     finally:

@@ -94,12 +94,12 @@ def get_logger(logger_name):
                     REAL_FILENAME: get_function_real_filename(command_function),
                     LOG_DECORATOR: True
                 }
-                logger.info(
+                logger.debug(
                     user_identification + f" - determines \"{command_name}\" command call",
                     extra = log_extra
                 )
                 result = command_function(*args, **kwargs)
-                logger.info(
+                logger.debug(
                     user_identification + f" - finishes \"{command_name}\" command",
                     extra = log_extra
                 )
@@ -121,12 +121,12 @@ def get_logger(logger_name):
                 REAL_FILENAME: get_function_real_filename(callback_function),
                 LOG_DECORATOR: True
             }
-            logger.info(
+            logger.debug(
                 user_identification + f" - determines \"{callback_function.__name__}\" call",
                 extra = log_extra
             )
             result = callback_function(*args, **kwargs)
-            logger.info(
+            logger.debug(
                 user_identification + f" - finishes \"{callback_function.__name__}\"",
                 extra = log_extra
             )
