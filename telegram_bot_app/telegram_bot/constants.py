@@ -5,6 +5,10 @@ CANCEL_BUTTON_TEXT_RUS = "Отмена"
 CANCEL_BUTTON_TEXT_EN = "Cancel"
 FINISH_BUTTON_TEXT_RUS = "Закончить"
 FINISH_BUTTON_TEXT_EN = "Finish"
+RETURN_BUTTON_TEXT_RUS = "Вернуться"
+RETURN_BUTTON_TEXT_EN = "Return"
+NEXT_BUTTON_TEXT_RUS = "Дальше"
+NEXT_BUTTON_TEXT_EN = "Next"
 
 BOT_DESCRIPTION = f"Бот для отслеживания скидок.\n" \
                   f"Для просмотра списка команд введите '/' или '/{COMMAND_LIST_COMMAND}'."
@@ -35,7 +39,7 @@ GET_SITES_COMMAND_RESPONSE_TEXT = "Ваши отслеживаемые сайт�
 GET_SITES_COMMAND_RESPONSE_TEXT_1 = f"На данный момент у Вас нет отслеживаемых сайтов.\n" \
                                     f"Чтобы добавить, воспользуйтесь командой \"/{ADD_SITE_COMMAND}\"."
 
-SITE_CREDENTIALS_COMMAND_RESPONSE_TEXT = "Выберите сайт, из предложенных ниже," \
+SITE_CREDENTIALS_COMMAND_RESPONSE_TEXT = "Выберите сайт из предложенных ниже," \
                                          " логин и пароль от аккаунта которого хотите посмотреть.\n" \
                                          "(сообщение с логином и паролем будет удалено через минуту, после получения)"
 SITE_CREDENTIALS_COMMAND_RESPONSE_TEXT_1 = f"На данный момент у Вас нет отслеживаемых сайтов.\n" \
@@ -43,10 +47,10 @@ SITE_CREDENTIALS_COMMAND_RESPONSE_TEXT_1 = f"На данный момент у �
 # время в секундах, по прошествии которого сообщение с логином и паролем будет удалено
 DELETE_SITE_CREDENTIALS_OFFSET = 60
 
-ADD_ITEM_COMMAND_RESPONSE_TEXT = "Выберите сайт, на котором была найдена вещь, из предложенных ниже."
+ADD_ITEM_COMMAND_RESPONSE_TEXT = "Выберите сайт, на котором была найдена вещь из предложенных ниже."
 ADD_ITEM_COMMAND_RESPONSE_TEXT_1 = f"На данный момент у Вас нет отслеживаемых сайтов.\n" \
                                    f"Чтобы добавить, воспользуйтесь командой \"/{ADD_SITE_COMMAND}\"."
-ADD_ITEM_COMMAND_RESPONSE_TEXT_2 = "Выберите тип вещи, из предложенных ниже."
+ADD_ITEM_COMMAND_RESPONSE_TEXT_2 = "Выберите тип вещи из предложенных ниже."
 ADD_ITEM_REQUEST_URL_TEXT = "Введите ссылку на вещь."
 # todo: добавить строку про команду add_item_sizes_command в ADD_ITEM_REQUEST_SIZE_TEXT
 ADD_ITEM_REQUEST_SIZE_TEXT = f"Выберите размер из предложенных ниже (они взяты со страницы вещи).\n" \
@@ -65,7 +69,9 @@ ADD_ITEM_COMMAND_FINISH_TEMPLATE_2 = "Вещь ({item_name}) добавлена 
 # третий аргумент - передаваемые данные
 # четвертый аргумент - дополнительные параметры через запятую
 CALLBACK_DATA_TEMPLATE = "{command}:{handler_number}:{data}:{extras}"
-CALLBACK_DATA_CANCEL_TEMPLATE = "{command}:{handler_number}:" + CANCEL_BUTTON_TEXT_EN + ":{extras}"
-CALLBACK_DATA_FINISH_TEMPLATE = "{command}:{handler_number}:" + FINISH_BUTTON_TEXT_EN + ":{extras}"
+CALLBACK_DATA_CANCEL_BUTTON_TEMPLATE = "{command}:{handler_number}:" + CANCEL_BUTTON_TEXT_EN + ":{extras}"
+CALLBACK_DATA_FINISH_BUTTON_TEMPLATE = "{command}:{handler_number}:" + FINISH_BUTTON_TEXT_EN + ":{extras}"
+CALLBACK_DATA_RETURN_BUTTON_TEMPLATE = "{command}:{handler_number}:" + RETURN_BUTTON_TEXT_EN + ":{extras}"
+CALLBACK_DATA_NEXT_BUTTON_TEMPLATE = "{command}:{handler_number}:" + NEXT_BUTTON_TEXT_EN + ":{extras}"
 # третья группа содержит данные
 CALLBACK_REGEX_TEMPLATE = r"(\b\w*\b)(:)(\d*)(:)(.*)(:)(.*)"

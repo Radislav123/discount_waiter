@@ -62,11 +62,11 @@ def add_site_command(message):
     """Дает возможность пользователю добавить сайт для отслеживания."""
 
     tracking_sites_names = get_discount_hunter_tracking_sites_names(message.chat.id)
-    site_names = [site.name for site in models.TrackingSite.objects.all()]
-    keys = get_inline_key_rows_from_names(ADD_SITE_COMMAND, site_names, forbidden_names = tracking_sites_names)[0]
+    sites_names = [site.name for site in models.TrackingSite.objects.all()]
+    rows = get_inline_button_rows(ADD_SITE_COMMAND, sites_names, forbidden_button_texts = tracking_sites_names)
 
-    reply_markup = get_inline_keyboard_markup(keys, get_inline_cancel_key(ADD_SITE_COMMAND))
-    if len(keys) > 0:
+    reply_markup = get_inline_keyboard_markup(*rows, get_inline_cancel_button_row(ADD_SITE_COMMAND))
+    if len(rows) > 0:
         send_message_return = bot.send_message(
             message.chat.id,
             ADD_SITE_COMMAND_RESPONSE_TEXT,
@@ -178,10 +178,10 @@ def remove_site_command(message):
     """Позволяет убрать сайт из отслеживаемых пользователем."""
 
     tracking_sites_names = get_discount_hunter_tracking_sites_names(message.chat.id)
-    keys = get_inline_key_rows_from_names(REMOVE_SITE_COMMAND, tracking_sites_names)[0]
+    rows = get_inline_button_rows(REMOVE_SITE_COMMAND, tracking_sites_names)
 
-    reply_markup = get_inline_keyboard_markup(keys, get_inline_cancel_key(REMOVE_SITE_COMMAND))
-    if len(keys) > 0:
+    reply_markup = get_inline_keyboard_markup(*rows, get_inline_cancel_button_row(REMOVE_SITE_COMMAND))
+    if len(rows) > 0:
         send_message_return = bot.send_message(
             message.chat.id,
             REMOVE_SITE_COMMAND_RESPONSE_TEXT,
@@ -241,10 +241,10 @@ def site_credentials_command(message):
     """Временно показывает логин и пароль для отслеживаемого сайта."""
 
     tracking_sites_names = get_discount_hunter_tracking_sites_names(message.chat.id)
-    keys = get_inline_key_rows_from_names(SITE_CREDENTIALS_COMMAND, tracking_sites_names)[0]
+    rows = get_inline_button_rows(SITE_CREDENTIALS_COMMAND, tracking_sites_names)
 
-    reply_markup = get_inline_keyboard_markup(keys, get_inline_cancel_key(SITE_CREDENTIALS_COMMAND))
-    if len(keys) > 0:
+    reply_markup = get_inline_keyboard_markup(*rows, get_inline_cancel_button_row(SITE_CREDENTIALS_COMMAND))
+    if len(rows) > 0:
         response_text = SITE_CREDENTIALS_COMMAND_RESPONSE_TEXT
     else:
         response_text = SITE_CREDENTIALS_COMMAND_RESPONSE_TEXT_1
@@ -280,10 +280,10 @@ def add_item_command(message):
 
     # выбор сайта, на котором найдена вещь
     tracking_sites_names = get_discount_hunter_tracking_sites_names(message.chat.id)
-    keys = get_inline_key_rows_from_names(ADD_ITEM_COMMAND, tracking_sites_names)[0]
+    rows = get_inline_button_rows(ADD_ITEM_COMMAND, tracking_sites_names)
 
-    reply_markup = get_inline_keyboard_markup(keys, get_inline_cancel_key(ADD_ITEM_COMMAND))
-    if len(keys) > 0:
+    reply_markup = get_inline_keyboard_markup(*rows, get_inline_cancel_button_row(ADD_ITEM_COMMAND))
+    if len(rows) > 0:
         send_message_return = bot.send_message(
             message.chat.id,
             ADD_ITEM_COMMAND_RESPONSE_TEXT,
@@ -321,17 +321,17 @@ def add_item_callback_handler(callback):
     key_extras = models.TrackingSite.objects.get(name = get_callback_data(callback)).id
     # выбор типа элемента одежды
     next_handler_number = 1
-    rows = get_inline_key_rows_from_names(
+    rows = get_inline_button_rows(
         ADD_ITEM_COMMAND,
         models.ItemType.rus_to_en,
-        keys_in_row = 2,
+        buttons_in_row = 2,
         handler_number = next_handler_number,
         extras = key_extras
     )
 
     reply_markup = get_inline_keyboard_markup(
         *rows,
-        get_inline_cancel_key(ADD_ITEM_COMMAND, handler_number = next_handler_number, extras = key_extras)
+        get_inline_cancel_button_row(ADD_ITEM_COMMAND, handler_number = next_handler_number, extras = key_extras)
     )
     bot.edit_message_text(
         ADD_ITEM_COMMAND_RESPONSE_TEXT_2,
@@ -360,6 +360,7 @@ def add_item_callback_handler_1(callback):
     )
 
 
+# todo: сделать статистику экономии денег на скидках (и другую статистику)
 @logger.log_telegram_callback
 def add_item_get_url_step(user_message, bot_message, site, item_type):
     # в extras передается id инстанса Item
@@ -399,13 +400,13 @@ def add_item_get_url_step(user_message, bot_message, site, item_type):
     )
 
 
-def get_button_names_for_sizes(item, remove_size_callback_prefix):
-    names = {x: x for x in item.sizes_on_site}
+def get_button_texts_for_sizes(item, remove_size_callback_prefix):
+    texts = {x: x for x in item.sizes_on_site}
     if item.sizes is not None:
         for size in item.sizes:
-            del names[size]
-            names.update({f"убрать {size}": f"{remove_size_callback_prefix}{size}"})
-    return names
+            del texts[size]
+            texts.update({f"убрать {size}": f"{remove_size_callback_prefix}{size}"})
+    return texts
 
 
 # todo: write remove_item_command
@@ -460,22 +461,22 @@ def add_item_callback_handler_2(callback):
             )
 
         next_handler_number = get_callback_handler_number(callback)
-        buttons_names = get_button_names_for_sizes(item, remove_size_callback_prefix)
-        rows = get_inline_key_rows_from_names(
+        buttons_names = get_button_texts_for_sizes(item, remove_size_callback_prefix)
+        rows = get_inline_button_rows(
             ADD_ITEM_COMMAND,
             buttons_names,
             handler_number = next_handler_number,
             extras = callback_extras
         )
-        keyboard_markup = get_inline_keyboard_markup(
+        reply_markup = get_inline_keyboard_markup(
             *rows,
-            get_inline_finish_key(ADD_ITEM_COMMAND, next_handler_number, callback_extras)
+            get_inline_finish_button_row(ADD_ITEM_COMMAND, next_handler_number, callback_extras)
         )
         bot.edit_message_text(
-            ADD_ITEM_REQUEST_SIZE_TEXT,
+            ADD_ITEM_REQUEST_SIZES_TEXT,
             callback.message.chat.id,
             callback.message.id,
-            reply_markup = keyboard_markup
+            reply_markup = reply_markup
         )
 
 

@@ -46,23 +46,25 @@ def set_bot_command_list():
     return bot.set_my_commands(bot_commands)
 
 
-# если names словарь, то ключи воспринимаются как названия (текст для кнопок), а значения как callback_data
-def get_inline_key_rows_from_names(
+# если button_texts словарь, то ключи воспринимаются как названия (текст для кнопок), а значения как callback_data
+# ключи - текст на кнопке
+# значения - данные в обратном вызове
+def get_inline_button_rows(
         command,
-        names,
-        forbidden_names = (),
-        keys_in_row = 3,
+        button_texts,
+        forbidden_button_texts = (),
+        buttons_in_row = 3,
         handler_number = 0,
         extras = None
 ):
-    keys = []
-    if type(names) is list:
-        callback_data = {x: x for x in names}
+    buttons = []
+    if type(button_texts) is list:
+        callback_data = {x: x for x in button_texts}
     else:
-        callback_data = names
-    for name in names:
-        if name not in forbidden_names:
-            keys.append(
+        callback_data = button_texts
+    for name in button_texts:
+        if name not in forbidden_button_texts:
+            buttons.append(
                 telebot.types.InlineKeyboardButton(
                     text = name,
                     callback_data = CALLBACK_DATA_TEMPLATE.format(
@@ -75,18 +77,18 @@ def get_inline_key_rows_from_names(
             )
 
     rows = []
-    for i in range((len(keys) // keys_in_row)):
-        rows.append(keys[i * keys_in_row: i * keys_in_row + keys_in_row])
-    if len(keys) % keys_in_row:
-        rows.append(keys[len(keys) // keys_in_row * keys_in_row:])
+    for i in range((len(buttons) // buttons_in_row)):
+        rows.append(buttons[i * buttons_in_row: i * buttons_in_row + buttons_in_row])
+    if len(buttons) % buttons_in_row:
+        rows.append(buttons[len(buttons) // buttons_in_row * buttons_in_row:])
     return rows
 
 
-def get_inline_cancel_key(command, handler_number = 0, extras = None):
+def get_inline_special_button_row(button_text, callback_data_template, command, handler_number = 0, extras = None):
     return [
         telebot.types.InlineKeyboardButton(
-            text = CANCEL_BUTTON_TEXT_RUS,
-            callback_data = CALLBACK_DATA_CANCEL_TEMPLATE.format(
+            text = button_text,
+            callback_data = callback_data_template.format(
                 command = command,
                 handler_number = handler_number,
                 extras = extras if extras else {}
@@ -95,17 +97,44 @@ def get_inline_cancel_key(command, handler_number = 0, extras = None):
     ]
 
 
-def get_inline_finish_key(command, handler_number = 0, extras = None):
-    return [
-        telebot.types.InlineKeyboardButton(
-            text = FINISH_BUTTON_TEXT_RUS,
-            callback_data = CALLBACK_DATA_FINISH_TEMPLATE.format(
-                command = command,
-                handler_number = handler_number,
-                extras = extras if extras else {}
-            )
-        )
-    ]
+def get_inline_cancel_button_row(command, button_text = CANCEL_BUTTON_TEXT_RUS, handler_number = 0, extras = None):
+    return get_inline_special_button_row(
+        button_text,
+        CALLBACK_DATA_CANCEL_BUTTON_TEMPLATE,
+        command,
+        handler_number,
+        extras
+    )
+
+
+def get_inline_finish_button_row(command, button_text = FINISH_BUTTON_TEXT_RUS, handler_number = 0, extras = None):
+    return get_inline_special_button_row(
+        button_text,
+        CALLBACK_DATA_FINISH_BUTTON_TEMPLATE,
+        command,
+        handler_number,
+        extras
+    )
+
+
+def get_inline_return_button_row(command, button_text = RETURN_BUTTON_TEXT_RUS, handler_number = 0, extras = None):
+    return get_inline_special_button_row(
+        button_text,
+        CALLBACK_DATA_RETURN_BUTTON_TEMPLATE,
+        command,
+        handler_number,
+        extras
+    )
+
+
+def get_inline_next_button_row(command, button_text = NEXT_BUTTON_TEXT_RUS, handler_number = 0, extras = None):
+    return get_inline_special_button_row(
+        button_text,
+        CALLBACK_DATA_NEXT_BUTTON_TEMPLATE,
+        command,
+        handler_number,
+        extras
+    )
 
 
 def get_inline_keyboard_markup(*rows):
@@ -113,8 +142,8 @@ def get_inline_keyboard_markup(*rows):
 
     # rows должен быть типа [[telebot.types.InlineKeyboardButton,..],..]
     keyboard_markup = telebot.types.InlineKeyboardMarkup()
-    for keys in rows:
-        keyboard_markup.row(*keys)
+    for buttons in rows:
+        keyboard_markup.row(*buttons)
     return keyboard_markup
 
 
