@@ -20,5 +20,5 @@ TRACKED_SITES_COMMAND_DESCRIPTION = "показать отслеживаемые
 SITE_CREDENTIALS_COMMAND = "site_credentials"
 SITE_CREDENTIALS_COMMAND_DESCRIPTION = "показать логин и пароль для отслеживаемого сайта (на 1 минуту)"
 
-ADD_CLOTHES_COMMAND = "add_clothes"
-ADD_CLOTHES_COMMAND_DESCRIPTION = "добавить элемент одежды для отслеживания"
+ADD_ITEM_COMMAND = "add_item"
+ADD_ITEM_COMMAND_DESCRIPTION = "добавить вещь для отслеживания"

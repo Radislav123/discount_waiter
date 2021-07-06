@@ -30,8 +30,8 @@ class DiscountHunterSiteLink(models.Model):
     active = models.BooleanField()
 
 
-class ClothesType(models.Model):
-    """Таблица с типами одежды."""
+class ItemType(models.Model):
+    """Таблица с типами вещей."""
 
     name_choices_en = (
         "underwear",
@@ -61,21 +61,21 @@ class ClothesType(models.Model):
     name_rus = models.CharField(choices = ((x, x) for x in name_choices_rus), max_length = 40)
 
 
-class ClothesDefaultSizes(models.Model):
-    """Таблица с размерами одежды по-умолчанию."""
+class ItemDefaultSizes(models.Model):
+    """Таблица с размерами вещей по-умолчанию."""
 
     discount_hunter_site_link = models.ForeignKey(DiscountHunterSiteLink, on_delete = models.PROTECT)
-    type = models.ForeignKey(ClothesType, on_delete = models.PROTECT)
+    type = models.ForeignKey(ItemType, on_delete = models.PROTECT)
     sizes = ArrayField(base_field = models.CharField(max_length = 20))
 
 
-class Clothes(models.Model):
-    """Таблица с отслеживаемой одеждой."""
+class Item(models.Model):
+    """Таблица с отслеживаемыми вещами."""
 
     name = models.CharField(max_length = 200, null = True)
     discount_hunter_site_link = models.ForeignKey(DiscountHunterSiteLink, on_delete = models.PROTECT)
-    type = models.ForeignKey(ClothesType, on_delete = models.PROTECT)
-    # ссылка на страницу одежды на сайте
+    type = models.ForeignKey(ItemType, on_delete = models.PROTECT)
+    # ссылка на страницу вещи на сайте
     url = models.URLField(max_length = 400)
     sizes = ArrayField(base_field = models.CharField(max_length = 20))
     sizes_on_site = ArrayField(base_field = models.CharField(max_length = 20), null = True)
@@ -83,12 +83,12 @@ class Clothes(models.Model):
     @property
     def sizes_to_order(self):
         sizes_to_order = []
-        clothes_default_sizes = ClothesDefaultSizes.objects.filter(
+        item_default_sizes = ItemDefaultSizes.objects.filter(
             discount_hunter_site_link = self.discount_hunter_site_link,
             type = self.type
         )
         if self.sizes is not None:
             sizes_to_order = self.sizes
-        elif clothes_default_sizes.exists():
-            sizes_to_order = clothes_default_sizes.first().sizes
+        elif item_default_sizes.exists():
+            sizes_to_order = item_default_sizes.first().sizes
         return sizes_to_order

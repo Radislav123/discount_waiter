@@ -1,6 +1,6 @@
 # noinspection PyUnresolvedReferences
 import pep8_e402_import_django
-from scrapers_app.scrapers.zara_clothes_info_scraper import ZaraClothesInfoScraper
+from scrapers_app.scrapers.zara_item_info_scraper import ZaraItemInfoScraper
 from telegram_bot_app.telegram_bot.service.time_related import *
 from django.core.exceptions import ObjectDoesNotExist
 from telegram_bot_app.telegram_bot.service import *
@@ -273,57 +273,57 @@ def site_credentials_callback_handler(callback):
 
 
 # noinspection DuplicatedCode
-@bot.message_handler(commands = [ADD_CLOTHES_COMMAND])
-@logger.log_telegram_command(ADD_CLOTHES_COMMAND)
-def add_clothes_command(message):
-    """Позволяет добавить элемент одежды для отслеживания."""
+@bot.message_handler(commands = [ADD_ITEM_COMMAND])
+@logger.log_telegram_command(ADD_ITEM_COMMAND)
+def add_item_command(message):
+    """Позволяет добавить вещь для отслеживания."""
 
     # выбор сайта, на котором найдена вещь
     tracking_sites_names = get_discount_hunter_tracking_sites_names(message.chat.id)
-    keys = get_inline_key_rows_from_names(ADD_CLOTHES_COMMAND, tracking_sites_names)[0]
+    keys = get_inline_key_rows_from_names(ADD_ITEM_COMMAND, tracking_sites_names)[0]
 
-    reply_markup = get_inline_keyboard_markup(keys, get_inline_cancel_key(ADD_CLOTHES_COMMAND))
+    reply_markup = get_inline_keyboard_markup(keys, get_inline_cancel_key(ADD_ITEM_COMMAND))
     if len(keys) > 0:
         send_message_return = bot.send_message(
             message.chat.id,
-            ADD_CLOTHES_COMMAND_RESPONSE_TEXT,
+            ADD_ITEM_COMMAND_RESPONSE_TEXT,
             reply_markup = reply_markup
         )
     else:
         send_message_return = bot.send_message(
             message.chat.id,
-            ADD_CLOTHES_COMMAND_RESPONSE_TEXT_1
+            ADD_ITEM_COMMAND_RESPONSE_TEXT_1
         )
     # в обратный вызов передается название сайта
     return send_message_return
 
 
-def is_first_add_clothes_callback_handler(callback):
-    return True if get_callback_handler_number(callback) == 0 and callback.data.startswith(ADD_CLOTHES_COMMAND) \
+def is_first_add_item_callback_handler(callback):
+    return True if get_callback_handler_number(callback) == 0 and callback.data.startswith(ADD_ITEM_COMMAND) \
         else False
 
 
-def is_second_add_clothes_callback_handler(callback):
-    return True if get_callback_handler_number(callback) == 1 and callback.data.startswith(ADD_CLOTHES_COMMAND) \
+def is_second_add_item_callback_handler(callback):
+    return True if get_callback_handler_number(callback) == 1 and callback.data.startswith(ADD_ITEM_COMMAND) \
         else False
 
 
-def is_third_add_clothes_callback_handler(callback):
-    return True if get_callback_handler_number(callback) == 2 and callback.data.startswith(ADD_CLOTHES_COMMAND) \
+def is_third_add_item_callback_handler(callback):
+    return True if get_callback_handler_number(callback) == 2 and callback.data.startswith(ADD_ITEM_COMMAND) \
         else False
 
 
-@bot.callback_query_handler(func = is_first_add_clothes_callback_handler)
+@bot.callback_query_handler(func = is_first_add_item_callback_handler)
 @logger.log_telegram_callback
 @cancel_button_in_callback
-def add_clothes_callback_handler(callback):
+def add_item_callback_handler(callback):
     # в extras передается id инстанса TrackingSite
     key_extras = models.TrackingSite.objects.get(name = get_callback_data(callback)).id
     # выбор типа элемента одежды
     next_handler_number = 1
     rows = get_inline_key_rows_from_names(
-        ADD_CLOTHES_COMMAND,
-        models.ClothesType.rus_to_en,
+        ADD_ITEM_COMMAND,
+        models.ItemType.rus_to_en,
         keys_in_row = 2,
         handler_number = next_handler_number,
         extras = key_extras
@@ -331,109 +331,109 @@ def add_clothes_callback_handler(callback):
 
     reply_markup = get_inline_keyboard_markup(
         *rows,
-        get_inline_cancel_key(ADD_CLOTHES_COMMAND, handler_number = next_handler_number, extras = key_extras)
+        get_inline_cancel_key(ADD_ITEM_COMMAND, handler_number = next_handler_number, extras = key_extras)
     )
     bot.edit_message_text(
-        ADD_CLOTHES_COMMAND_RESPONSE_TEXT_2,
+        ADD_ITEM_COMMAND_RESPONSE_TEXT_2,
         callback.message.chat.id,
         callback.message.id,
         reply_markup = reply_markup
     )
 
 
-@bot.callback_query_handler(func = is_second_add_clothes_callback_handler)
+@bot.callback_query_handler(func = is_second_add_item_callback_handler)
 @logger.log_telegram_callback
 @cancel_button_in_callback
-def add_clothes_callback_handler_1(callback):
+def add_item_callback_handler_1(callback):
     # запрос на ввод ссылки на элемент одежды
     bot.edit_message_text(
-        ADD_CLOTHES_REQUEST_CLOTHES_URL_TEXT,
+        ADD_ITEM_REQUEST_URL_TEXT,
         callback.message.chat.id,
         callback.message.id
     )
     bot.register_next_step_handler(
         callback.message,
-        add_clothes_get_url_step,
+        add_item_get_url_step,
         callback.message,
         models.TrackingSite.objects.get(id = get_callback_extras(callback)),
-        models.ClothesType.objects.get(name = get_callback_data(callback))
+        models.ItemType.objects.get(name = get_callback_data(callback))
     )
 
 
 @logger.log_telegram_callback
-def add_clothes_get_url_step(user_message, bot_message, site, clothes_type):
-    # в extras передается id инстанса Clothes
-    clothes = models.Clothes(
+def add_item_get_url_step(user_message, bot_message, site, item_type):
+    # в extras передается id инстанса Item
+    item = models.Item(
         discount_hunter_site_link = get_discount_hunter_site_link_by_chat_id_and_site_name(
             bot_message.chat.id,
             site.name
         ),
-        type = clothes_type,
+        type = item_type,
         url = user_message.text,
         sizes = []
     )
     # поля name и sizes_on_site берутся с сайта
-    ZaraClothesInfoScraper.run(clothes = clothes)
-    clothes.save()
+    ZaraItemInfoScraper.run(item = item)
+    item.save()
 
-    key_extras = clothes.id
+    key_extras = item.id
     next_handler_number = 2
     # выбор размеров
     rows = get_inline_key_rows_from_names(
-        ADD_CLOTHES_COMMAND,
-        clothes.sizes_on_site,
+        ADD_ITEM_COMMAND,
+        item.sizes_on_site,
         handler_number = next_handler_number,
         extras = key_extras
     )
     keyboard_markup = get_inline_keyboard_markup(
         *rows,
-        get_inline_finish_key(ADD_CLOTHES_COMMAND, next_handler_number, key_extras)
+        get_inline_finish_key(ADD_ITEM_COMMAND, next_handler_number, key_extras)
     )
 
     bot.delete_message(user_message.chat.id, user_message.id)
     bot.edit_message_text(
-        ADD_CLOTHES_REQUEST_CLOTHES_SIZE_TEXT,
+        ADD_ITEM_REQUEST_SIZE_TEXT,
         bot_message.chat.id,
         bot_message.id,
         reply_markup = keyboard_markup
     )
 
 
-def get_button_names_for_sizes(clothes, remove_size_callback_prefix):
-    names = {x: x for x in clothes.sizes_on_site}
-    if clothes.sizes is not None:
-        for size in clothes.sizes:
+def get_button_names_for_sizes(item, remove_size_callback_prefix):
+    names = {x: x for x in item.sizes_on_site}
+    if item.sizes is not None:
+        for size in item.sizes:
             del names[size]
             names.update({f"убрать {size}": f"{remove_size_callback_prefix}{size}"})
     return names
 
 
-# todo: write remove_clothes_command
-# todo: write add_clothes_sizes_command
-# todo: write remove_clothes_sizes_command
-# todo: write add_default_clothes_sizes_command
-# todo: write remove_default_clothes_sizes_command
-@bot.callback_query_handler(func = is_third_add_clothes_callback_handler)
+# todo: write remove_item_command
+# todo: write add_item_sizes_command
+# todo: write remove_item_sizes_command
+# todo: write add_default_item_sizes_command
+# todo: write remove_default_item_sizes_command
+@bot.callback_query_handler(func = is_third_add_item_callback_handler)
 @logger.log_telegram_callback
-def add_clothes_callback_handler_2(callback):
+def add_item_callback_handler_2(callback):
     callback_data = get_callback_data(callback)
     callback_extras = get_callback_extras(callback)
-    clothes = models.Clothes.objects.get(id = int(callback_extras))
+    item = models.Item.objects.get(id = int(callback_extras))
     remove_size_callback_prefix = "remove-"
 
     if callback_data == FINISH_BUTTON_TEXT_EN:
-        if len(clothes.sizes_to_order) == 1:
-            command_finish_text = ADD_CLOTHES_COMMAND_FINISH_TEMPLATE.format(
-                clothes_name = clothes.name,
-                sizes_to_order = clothes.sizes_to_order[0]
+        if len(item.sizes_to_order) == 1:
+            command_finish_text = ADD_ITEM_COMMAND_FINISH_TEMPLATE.format(
+                item_name = item.name,
+                sizes_to_order = item.sizes_to_order[0]
             )
-        elif len(clothes.sizes_to_order) > 1:
-            command_finish_text = ADD_CLOTHES_COMMAND_FINISH_TEMPLATE_1.format(
-                clothes_name = clothes.name,
-                sizes_to_order = ", ".join(clothes.sizes_to_order)
+        elif len(item.sizes_to_order) > 1:
+            command_finish_text = ADD_ITEM_COMMAND_FINISH_TEMPLATE_1.format(
+                item_name = item.name,
+                sizes_to_order = ", ".join(item.sizes_to_order)
             )
         else:
-            command_finish_text = ADD_CLOTHES_COMMAND_FINISH_TEMPLATE_2.format(clothes_name = clothes.name)
+            command_finish_text = ADD_ITEM_COMMAND_FINISH_TEMPLATE_2.format(item_name = item.name)
         bot.edit_message_text(
             command_finish_text,
             callback.message.chat.id,
@@ -441,38 +441,38 @@ def add_clothes_callback_handler_2(callback):
         )
     else:
         if callback_data.startswith(remove_size_callback_prefix):
-            clothes.sizes.remove(callback_data.removeprefix(remove_size_callback_prefix))
-            clothes.save()
+            item.sizes.remove(callback_data.removeprefix(remove_size_callback_prefix))
+            item.save()
             logger.log_inside_telegram_command(
                 logging.DEBUG,
                 callback,
-                f"\"{callback_data}\" size was removed for {clothes.discount_hunter_site_link.site.name} site"
-                f" and clothes with url - ({clothes.url})."
+                f"\"{callback_data}\" size was removed for {item.discount_hunter_site_link.site.name} site"
+                f" and item with url - ({item.url})."
             )
         else:
-            clothes.sizes.append(callback_data)
-            clothes.save()
+            item.sizes.append(callback_data)
+            item.save()
             logger.log_inside_telegram_command(
                 logging.DEBUG,
                 callback,
-                f"\"{callback_data}\" size was added for {clothes.discount_hunter_site_link.site.name} site"
-                f" and clothes with url - ({clothes.url})."
+                f"\"{callback_data}\" size was added for {item.discount_hunter_site_link.site.name} site"
+                f" and item with url - ({item.url})."
             )
 
         next_handler_number = get_callback_handler_number(callback)
-        buttons_names = get_button_names_for_sizes(clothes, remove_size_callback_prefix)
+        buttons_names = get_button_names_for_sizes(item, remove_size_callback_prefix)
         rows = get_inline_key_rows_from_names(
-            ADD_CLOTHES_COMMAND,
+            ADD_ITEM_COMMAND,
             buttons_names,
             handler_number = next_handler_number,
             extras = callback_extras
         )
         keyboard_markup = get_inline_keyboard_markup(
             *rows,
-            get_inline_finish_key(ADD_CLOTHES_COMMAND, next_handler_number, callback_extras)
+            get_inline_finish_key(ADD_ITEM_COMMAND, next_handler_number, callback_extras)
         )
         bot.edit_message_text(
-            ADD_CLOTHES_REQUEST_CLOTHES_SIZE_TEXT,
+            ADD_ITEM_REQUEST_SIZE_TEXT,
             callback.message.chat.id,
             callback.message.id,
             reply_markup = keyboard_markup
