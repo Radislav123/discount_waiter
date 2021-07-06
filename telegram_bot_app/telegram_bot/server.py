@@ -4,6 +4,7 @@ from scrapers_app.scrapers.zara_item_info_scraper import ZaraItemInfoScraper
 from telegram_bot_app.telegram_bot.service.time_related import *
 from django.core.exceptions import ObjectDoesNotExist
 from telegram_bot_app.telegram_bot.service import *
+from django.core.exceptions import ValidationError
 from service_app.logger import get_logger
 from service_app import models
 import functools
@@ -20,6 +21,7 @@ def cancel_button_in_callback(callback_function):
         if callback_data != CANCEL_BUTTON_TEXT_RUS and callback_data != CANCEL_BUTTON_TEXT_EN:
             handler_return = callback_function(callback, *args, **kwargs)
         else:
+            bot.clear_step_handler(callback.message)
             handler_return = bot.edit_message_text(
                 CANCEL_BUTTON_TEXT_RUS,
                 callback.message.chat.id,
@@ -27,6 +29,14 @@ def cancel_button_in_callback(callback_function):
             )
             logger.log_inside_telegram_command(logging.DEBUG, callback, "cancel button was pressed")
         return handler_return
+
+    return wrapper
+
+
+def is_numbered_callback_handler(command, handler_number):
+    def wrapper(callback):
+        return True if get_callback_handler_number(callback) == handler_number and callback.data.startswith(command) \
+            else False
 
     return wrapper
 
@@ -298,25 +308,12 @@ def add_item_command(message):
     return send_message_return
 
 
-def is_first_add_item_callback_handler(callback):
-    return True if get_callback_handler_number(callback) == 0 and callback.data.startswith(ADD_ITEM_COMMAND) \
-        else False
-
-
-def is_second_add_item_callback_handler(callback):
-    return True if get_callback_handler_number(callback) == 1 and callback.data.startswith(ADD_ITEM_COMMAND) \
-        else False
-
-
-def is_third_add_item_callback_handler(callback):
-    return True if get_callback_handler_number(callback) == 2 and callback.data.startswith(ADD_ITEM_COMMAND) \
-        else False
-
-
-@bot.callback_query_handler(func = is_first_add_item_callback_handler)
+@bot.callback_query_handler(func = is_numbered_callback_handler(ADD_ITEM_COMMAND, 0))
 @logger.log_telegram_callback
 @cancel_button_in_callback
 def add_item_callback_handler(callback):
+    """Получение сайта, на котором была найдена вещь."""
+
     # в extras передается id инстанса TrackingSite
     key_extras = models.TrackingSite.objects.get(name = get_callback_data(callback)).id
     # выбор типа элемента одежды
@@ -341,15 +338,25 @@ def add_item_callback_handler(callback):
     )
 
 
-@bot.callback_query_handler(func = is_second_add_item_callback_handler)
+@bot.callback_query_handler(func = is_numbered_callback_handler(ADD_ITEM_COMMAND, 1))
 @logger.log_telegram_callback
 @cancel_button_in_callback
 def add_item_callback_handler_1(callback):
+    """Получение типа вещи."""
+
     # запрос на ввод ссылки на элемент одежды
     bot.edit_message_text(
         ADD_ITEM_REQUEST_URL_TEXT,
         callback.message.chat.id,
-        callback.message.id
+        callback.message.id,
+        reply_markup = get_inline_keyboard_markup(
+            get_inline_cancel_button_row(
+                ADD_ITEM_COMMAND,
+                handler_number = 2,
+                # в extras передается id инстанса TrackingSite
+                extras = get_callback_extras(callback)
+            )
+        )
     )
     bot.register_next_step_handler(
         callback.message,
@@ -362,42 +369,94 @@ def add_item_callback_handler_1(callback):
 
 # todo: сделать статистику экономии денег на скидках (и другую статистику)
 @logger.log_telegram_callback
-def add_item_get_url_step(user_message, bot_message, site, item_type):
-    # в extras передается id инстанса Item
-    item = models.Item(
-        discount_hunter_site_link = get_discount_hunter_site_link_by_chat_id_and_site_name(
-            bot_message.chat.id,
-            site.name
-        ),
-        type = item_type,
-        url = user_message.text,
-        sizes = []
-    )
-    # поля name и sizes_on_site берутся с сайта
-    ZaraItemInfoScraper.run(item = item)
-    item.save()
+def add_item_get_url_step(user_message, bot_message, site, item_type, recursive = False):
+    """Получение ссылки на вещь."""
 
-    key_extras = item.id
-    next_handler_number = 2
-    # выбор размеров
-    rows = get_inline_key_rows_from_names(
-        ADD_ITEM_COMMAND,
-        item.sizes_on_site,
-        handler_number = next_handler_number,
-        extras = key_extras
-    )
-    keyboard_markup = get_inline_keyboard_markup(
-        *rows,
-        get_inline_finish_key(ADD_ITEM_COMMAND, next_handler_number, key_extras)
-    )
+    try:
+        item = models.Item(
+            discount_hunter_site_link = get_discount_hunter_site_link_by_chat_id_and_site_name(
+                bot_message.chat.id,
+                site.name
+            ),
+            type = item_type,
+            url = user_message.text,
+            sizes = []
+        )
+        item.validate_url()
+        # поля name и sizes_on_site берутся с сайта
+        # todo: отвязать от Зары и выбирать из сайтов в базе
+        scraper = ZaraItemInfoScraper(item)
+        scraper.find_elements_on_page()
+        scraper.run()
+        item.save()
+        # в extras передается id инстанса Item
+        key_extras = item.id
 
-    bot.delete_message(user_message.chat.id, user_message.id)
-    bot.edit_message_text(
-        ADD_ITEM_REQUEST_SIZE_TEXT,
-        bot_message.chat.id,
-        bot_message.id,
-        reply_markup = keyboard_markup
-    )
+        if scraper.found_all_elements:
+            next_handler_number = 2
+            # выбор размеров
+            rows = get_inline_button_rows(
+                ADD_ITEM_COMMAND,
+                item.sizes_on_site,
+                handler_number = next_handler_number,
+                extras = key_extras
+            )
+            reply_markup = get_inline_keyboard_markup(
+                *rows,
+                get_inline_finish_button_row(ADD_ITEM_COMMAND, next_handler_number, key_extras)
+            )
+            bot.edit_message_text(
+                ADD_ITEM_REQUEST_SIZES_TEXT,
+                bot_message.chat.id,
+                bot_message.id,
+                reply_markup = reply_markup
+            )
+        else:
+            bot.edit_message_text(
+                ADD_ITEM_NOT_FOUND_INFORMATION_TEXT,
+                bot_message.chat.id,
+                bot_message.id
+            )
+            item.delete()
+            log_message = f"Not found elements ({scraper.not_found_elements})" \
+                          f" on the page ({item.url})."
+            logger.log_inside_telegram_command(
+                logging.INFO,
+                user_message,
+                log_message
+            )
+    except ValidationError as error:
+        new_bot_message_text = ADD_ITEM_INCORRECT_URL
+        # noinspection PyUnboundLocalVariable
+        if error.message == item.url_incorrect_domain_error_text:
+            new_bot_message_text = ADD_ITEM_INCORRECT_DOMAIN_TEMPLATE.format(
+                url = user_message.text,
+                site_name = site.name
+            )
+        if not recursive:
+            bot.edit_message_text(
+                new_bot_message_text,
+                bot_message.chat.id,
+                bot_message.id,
+                reply_markup = get_inline_keyboard_markup(
+                    get_inline_cancel_button_row(
+                        ADD_ITEM_COMMAND,
+                        # в extras передается id инстанса TrackingSite
+                        extras = site.id
+                    )
+                )
+            )
+        # выйти из рекурсии можно введя валидную ссылку на вещь или нажав кнопку отмены
+        bot.register_next_step_handler(
+            bot_message,
+            add_item_get_url_step,
+            bot_message,
+            site,
+            item_type,
+            recursive = True
+        )
+    finally:
+        bot.delete_message(user_message.chat.id, user_message.id)
 
 
 def get_button_texts_for_sizes(item, remove_size_callback_prefix):
@@ -414,9 +473,12 @@ def get_button_texts_for_sizes(item, remove_size_callback_prefix):
 # todo: write remove_item_sizes_command
 # todo: write add_default_item_sizes_command
 # todo: write remove_default_item_sizes_command
-@bot.callback_query_handler(func = is_third_add_item_callback_handler)
+@bot.callback_query_handler(func = is_numbered_callback_handler(ADD_ITEM_COMMAND, 2))
 @logger.log_telegram_callback
+@cancel_button_in_callback
 def add_item_callback_handler_2(callback):
+    """Выбор размеров вещи."""
+
     callback_data = get_callback_data(callback)
     callback_extras = get_callback_extras(callback)
     item = models.Item.objects.get(id = int(callback_extras))

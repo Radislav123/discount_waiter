@@ -1,4 +1,6 @@
 from django.contrib.postgres.fields import ArrayField
+from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
 from django.db import models
 
 
@@ -95,3 +97,17 @@ class Item(models.Model):
         elif item_default_sizes.exists():
             sizes_to_order = item_default_sizes.first().sizes
         return sizes_to_order
+
+    @property
+    def url_incorrect_domain_error_text(self):
+        return f"{self.url} is not from {self.discount_hunter_site_link.site.name} site."
+
+    def validate_url(self):
+        # проверка на то, что введен корректный url
+        URLValidator()(self.url)
+        # проверка на то, что введен url с выбранного сайта
+        site_scheme, site_url_without_scheme = self.discount_hunter_site_link.site.address.split(':')
+        site_url_without_scheme = site_url_without_scheme[2:]
+        site_domain = site_url_without_scheme.split('/')[0]
+        if not self.url.startswith(f"{site_scheme}://{site_domain}/"):
+            raise ValidationError(self.url_incorrect_domain_error_text)
