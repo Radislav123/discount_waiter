@@ -44,6 +44,7 @@ class ItemType(models.Model):
         "footwear",
         "undefined",
     )
+    has_no_sizes_list = ("shawl or scarf",)
     name_choices_rus = (
         "нательное бельё",
         "корсетное изделие",
@@ -59,6 +60,7 @@ class ItemType(models.Model):
     rus_to_en = dict(zip(name_choices_rus, name_choices_en))
     name = models.CharField(choices = ((x, x) for x in name_choices_en), max_length = 40)
     name_rus = models.CharField(choices = ((x, x) for x in name_choices_rus), max_length = 40)
+    has_no_sizes = models.BooleanField()
 
 
 class ItemDefaultSizes(models.Model):
@@ -72,13 +74,14 @@ class ItemDefaultSizes(models.Model):
 class Item(models.Model):
     """Таблица с отслеживаемыми вещами."""
 
+    # поля, имеющие null = True заполняются информацией со страницы вещи
     name = models.CharField(max_length = 200, null = True)
     discount_hunter_site_link = models.ForeignKey(DiscountHunterSiteLink, on_delete = models.PROTECT)
     type = models.ForeignKey(ItemType, on_delete = models.PROTECT)
     # ссылка на страницу вещи на сайте
     url = models.URLField(max_length = 400)
-    sizes = ArrayField(base_field = models.CharField(max_length = 20))
-    sizes_on_site = ArrayField(base_field = models.CharField(max_length = 20), null = True)
+    sizes = ArrayField(base_field = models.CharField(max_length = 20), blank = True)
+    sizes_on_site = ArrayField(base_field = models.CharField(max_length = 20), null = True, blank = True)
 
     @property
     def sizes_to_order(self):

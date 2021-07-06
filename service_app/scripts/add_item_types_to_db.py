@@ -11,7 +11,8 @@ def add_item_types():
     for type_name in zip(models.ItemType.name_choices_en, models.ItemType.name_choices_rus):
         clothes_type = models.ItemType(
             name = type_name[0],
-            name_rus = type_name[1]
+            name_rus = type_name[1],
+            has_no_sizes = True if type_name[0] in models.ItemType.has_no_sizes_list else False
         )
         if len(models.ItemType.objects.filter(name = type_name[0])) == 0:
             clothes_type.save()
