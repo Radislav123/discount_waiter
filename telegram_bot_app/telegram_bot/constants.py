@@ -42,7 +42,7 @@ REMOVE_SITE__CHOOSE_SITE_TEXT = f"{CHOOSE_SITE_DEFAULT_TEXT}, который х�
 REMOVE_SITE__HAVE_NO_SITES_TEXT = HAVE_NO_SITES_DEFAULT_TEXT
 REMOVE_SITE__SUCCESS_FINISH_TEMPLATE = "Сайт \"{site_name}\" больше не отслеживается."
 
-TRACKED_SITES__RESPONSE_OK_TEXT = "Ваши отслеживаемые сайты:\n"
+TRACKED_SITES__SUCCESS_RESPONSE_TEXT = "Ваши отслеживаемые сайты:"
 TRACKED_SITES__HAVE_NO_SITES_TEXT = HAVE_NO_SITES_DEFAULT_TEXT
 
 SITE_CREDENTIALS__CHOOSE_SITE_TEXT = f"{CHOOSE_SITE_DEFAULT_TEXT}," \
@@ -52,7 +52,7 @@ SITE_CREDENTIALS__HAVE_NO_SITES_TEXT = HAVE_NO_SITES_DEFAULT_TEXT
 # время в секундах, по прошествии которого сообщение с логином и паролем будет удалено
 DELETE_SITE_CREDENTIALS_OFFSET = 60
 
-ADD_ITEM__CHOOSE_SITE_OK_TEXT = f"{CHOOSE_SITE_DEFAULT_TEXT}, на котором была найдена вещь."
+ADD_ITEM__CHOOSE_SITE_TEXT = f"{CHOOSE_SITE_DEFAULT_TEXT}, на котором была найдена вещь."
 ADD_ITEM__HAVE_NO_SITES_TEXT = HAVE_NO_SITES_DEFAULT_TEXT
 ADD_ITEM__CHOOSE_ITEM_TYPE_TEXT = f"{CHOOSE_ITEM_TYPE_DEFAULT_TEXT}."
 ADD_ITEM__INPUT_URL_TEXT = "Введите ссылку на вещь."
@@ -68,13 +68,20 @@ ADD_ITEM__CHOOSE_SIZES_TEXT = f"Выберите размер (или разме
                               f"При нажатии на кнопку \"{FINISH_BUTTON_TEXT_RUS}\"," \
                               f" размеры будут взяты из Ваших размеров по умолчанию, для данного типа вещи." \
                               f"Если у Вас не заданы размеры по умолчанию, вещь заказана не будет."
-ADD_ITEM__SUCCESS_FINISH_ONE_SIZE_TEMPLATE = "Вещь ({item_name})" \
+ADD_ITEM__ONE_SIZE_TEMPLATE = "Вещь ({item_name})" \
                             " с размером ({sizes_to_order}) добавлена для отслеживания."
-ADD_ITEM__SUCCESS_FINISH_MANE_SIZES_TEMPLATE = "Вещь ({item_name})" \
+ADD_ITEM__MANY_SIZES_TEMPLATE = "Вещь ({item_name})" \
                               " с размерами ({sizes_to_order}) добавлена для отслеживания."
 # todo: добавить строку про использование команды add_default_item_type_sizes
-#  в ADD_ITEM__SUCCESS_FINISH_MANE_SIZES_TEMPLATE
-ADD_ITEM__SUCCESS_FINISH_NO_SIZES_TEMPLATE = "Вещь ({item_name}) добавлена для отслеживания без размеров."
+#  в ADD_ITEM__MANY_SIZES_TEMPLATE
+ADD_ITEM__NO_SIZES_TEMPLATE = "Вещь ({item_name}) добавлена для отслеживания без размеров."
+
+TRACKED_ITEMS__CHOOSE_SITE_TEXT = f"{CHOOSE_SITE_DEFAULT_TEXT}, вещи с которого хотите увидеть."
+TRACKED_ITEMS__HAVE_NO_SITES_TEXT = HAVE_NO_SITES_DEFAULT_TEXT
+TRACKED_ITEMS__CHOOSE_ITEM_TYPE = f"Выберите тип вещей из предложенных ниже, которые хотите увидеть."
+TRACKED_ITEMS__ONE_ITEM_TEMPLATE = "Ваша единственная вещь типа - {item_type_name}:"
+TRACKED_ITEMS__MANY_ITEMS_TEMPLATE = "Ваши вещи типа - {item_type_name}:"
+TRACKED_ITEMS__NO_ITEMS_TEMPLATE = "У Вас нет ни одной вещи типа - {item_type_name}."
 
 # первый аргумент - команда, которая связана с обратным вызовом
 # второй аргумент - номер хендлера (или шага)

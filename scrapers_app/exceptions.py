@@ -4,8 +4,6 @@ from service_app.exceptions import DiscountWaiterException
 class ScraperAppException(DiscountWaiterException):
     """Базовое исключение для всех исключений модуля scrapers_app."""
 
-    pass
-
 
 class HtmlElementNotFoundException(ScraperAppException):
     """Поднимается, если не был найден хотя бы один элемент на странице."""

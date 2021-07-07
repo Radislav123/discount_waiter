@@ -11,8 +11,6 @@ class DiscountWaiterException(Exception):
 class ServiceAppException(DiscountWaiterException):
     """Базовое исключение для всех исключений модуля service_app."""
 
-    pass
-
 
 class UnknownItemAttributeException(ServiceAppException):
     pass

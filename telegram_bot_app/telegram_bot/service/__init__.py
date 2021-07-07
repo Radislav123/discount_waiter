@@ -46,35 +46,43 @@ def set_bot_command_list():
     return bot.set_my_commands(bot_commands)
 
 
-# если button_texts словарь, то ключи воспринимаются как названия (текст для кнопок), а значения как callback_data
+# если buttons_data словарь, то ключи воспринимаются как названия (текст для кнопок),
+# а значения как callback_data или url
 # ключи - текст на кнопке
-# значения - данные в обратном вызове
+# значения - данные в обратном вызове или ссылки, если linked == True
 def get_inline_button_rows(
         command,
-        button_texts,
+        buttons_data,
         forbidden_button_texts = (),
         buttons_in_row = 3,
         handler_number = 0,
-        extras = None
+        extras = None,
+        linked = False
 ):
     buttons = []
-    if type(button_texts) is list:
-        callback_data = {x: x for x in button_texts}
-    else:
-        callback_data = button_texts
-    for name in button_texts:
+    if type(buttons_data) is list:
+        buttons_data = {x: x for x in buttons_data}
+    for name in buttons_data:
         if name not in forbidden_button_texts:
-            buttons.append(
-                telebot.types.InlineKeyboardButton(
-                    text = name,
-                    callback_data = CALLBACK_DATA_TEMPLATE.format(
-                        command = command,
-                        handler_number = handler_number,
-                        data = callback_data[name],
-                        extras = extras if extras else {}
+            if linked:
+                buttons.append(
+                    telebot.types.InlineKeyboardButton(
+                        text = name,
+                        url = buttons_data[name]
                     )
                 )
-            )
+            else:
+                buttons.append(
+                    telebot.types.InlineKeyboardButton(
+                        text = name,
+                        callback_data = CALLBACK_DATA_TEMPLATE.format(
+                            command = command,
+                            handler_number = handler_number,
+                            data = buttons_data[name],
+                            extras = extras if extras else {}
+                        )
+                    )
+                )
 
     rows = []
     for i in range((len(buttons) // buttons_in_row)):
@@ -159,11 +167,29 @@ def get_callback_extras(callback):
     return json.loads(re.findall(CALLBACK_REGEX_TEMPLATE, callback.data)[0][6])
 
 
-def get_discount_hunter_tracking_sites_names(chat_id):
-    site_links = models.DiscountHunterSiteLink.objects.filter(
+def get_discount_hunter_tracked_sites(chat_id):
+    return models.DiscountHunterSiteLink.objects.filter(
         discount_hunter = models.DiscountHunter.objects.get(telegram_chat_id = chat_id)
     )
-    return [link.site.name for link in site_links if link.active]
+
+
+def get_discount_hunter_tracked_sites_names(chat_id):
+    return [link.site.name for link in get_discount_hunter_tracked_sites(chat_id) if link.active]
+
+
+def get_discount_hunter_tracked_items(chat_id, site_name, item_type = None):
+    if item_type:
+        if type(item_type) is int or type(item_type) is str and item_type.isdigit():
+            item_type = models.ItemType.objects.get(id = int(item_type))
+        tracked_items = models.Item.objects.filter(
+            discount_hunter_site_link = get_discount_hunter_site_link(chat_id, site_name),
+            type = item_type
+        )
+    else:
+        tracked_items = models.Item.objects.filter(
+            discount_hunter_site_link = get_discount_hunter_site_link(chat_id, site_name)
+        )
+    return tracked_items
 
 
 def update_model_instance(model, model_instance, filters):
@@ -173,16 +199,16 @@ def update_model_instance(model, model_instance, filters):
     return model.objects.filter(**filters).update(**update_data)
 
 
-def get_discount_hunter_by_chat_id(chat_id):
+def get_discount_hunter(chat_id):
     return models.DiscountHunter.objects.get(telegram_chat_id = chat_id)
 
 
-def get_tracking_site_by_name(site_name):
-    return models.TrackingSite.objects.get(name = site_name)
+def get_tracked_site(site_name):
+    return models.TrackedSite.objects.get(name = site_name)
 
 
-def get_discount_hunter_site_link_by_chat_id_and_site_name(chat_id, site_name):
+def get_discount_hunter_site_link(chat_id, site_name):
     return models.DiscountHunterSiteLink.objects.get(
-        discount_hunter = get_discount_hunter_by_chat_id(chat_id),
-        site = get_tracking_site_by_name(site_name)
+        discount_hunter = get_discount_hunter(chat_id),
+        site = get_tracked_site(site_name)
     )

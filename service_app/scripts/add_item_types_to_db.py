@@ -14,15 +14,19 @@ def add_item_types():
             name_rus = type_name[1],
             has_no_sizes = True if type_name[0] in models.ItemType.has_no_sizes_list else False
         )
+
         if len(models.ItemType.objects.filter(name = type_name[0])) == 0:
             clothes_type.save()
-            logger.info(f"{type_name[0]} clothes type - successfully added to the db")
+            log_message = f"{type_name[0]} clothes type - successfully added to the db"
         else:
             update_data = clothes_type.__dict__.copy()
             del update_data["_state"]
             del update_data["id"]
             models.ItemType.objects.filter(name = type_name[0]).update(**update_data)
-            logger.info(f"{type_name[0]} ({type_name[1]}) clothes type - successfully updated in the db")
+            log_message = f"{type_name[0]} ({type_name[1]}) clothes type - successfully updated in the db"
+
+        logger.info(log_message)
+        print(log_message)
 
 
 def run():

@@ -15,7 +15,7 @@ class DiscountHunter(models.Model):
     telegram_user_last_name = models.CharField(max_length = 100, null = True)
 
 
-class TrackingSite(models.Model):
+class TrackedSite(models.Model):
     """Отслеживаемые сайты"""
 
     name = models.CharField(max_length = 50)
@@ -26,7 +26,7 @@ class DiscountHunterSiteLink(models.Model):
     """Таблица для связи пользователей с отслеживаемыми ими сайтами."""
 
     discount_hunter = models.ForeignKey(DiscountHunter, on_delete = models.PROTECT)
-    site = models.ForeignKey(TrackingSite, on_delete = models.PROTECT)
+    site = models.ForeignKey(TrackedSite, on_delete = models.PROTECT)
     login = models.EmailField(max_length = 100)
     password = models.CharField(max_length = 100)
     active = models.BooleanField()
@@ -60,7 +60,7 @@ class ItemType(models.Model):
     )
     en_to_rus = dict(zip(name_choices_en, name_choices_rus))
     rus_to_en = dict(zip(name_choices_rus, name_choices_en))
-    name = models.CharField(choices = ((x, x) for x in name_choices_en), max_length = 40)
+    name_en = models.CharField(choices = ((x, x) for x in name_choices_en), max_length = 40)
     name_rus = models.CharField(choices = ((x, x) for x in name_choices_rus), max_length = 40)
     has_no_sizes = models.BooleanField()
 

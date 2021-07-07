@@ -33,7 +33,7 @@ def cancel_button_in_callback(callback_function):
     return wrapper
 
 
-def is_numbered_callback_handler(command, handler_number):
+def is_callback_handler(command, handler_number = 0):
     def wrapper(callback):
         return True if get_callback_handler_number(callback) == handler_number and callback.data.startswith(command) \
             else False
@@ -71,24 +71,24 @@ def start_command(message):
 def add_site_command(message):
     """Дает возможность пользователю добавить сайт для отслеживания."""
 
-    tracking_sites_names = get_discount_hunter_tracking_sites_names(message.chat.id)
-    sites_names = [site.name for site in models.TrackingSite.objects.all()]
+    tracking_sites_names = get_discount_hunter_tracked_sites_names(message.chat.id)
+    buttons_data = [site.name for site in models.TrackedSite.objects.all()]
     # в обратный вызов передается название сайта
-    rows = get_inline_button_rows(ADD_SITE_COMMAND, sites_names, forbidden_button_texts = tracking_sites_names)
-
+    rows = get_inline_button_rows(ADD_SITE_COMMAND, buttons_data, forbidden_button_texts = tracking_sites_names)
     reply_markup = get_inline_keyboard_markup(*rows, get_inline_cancel_button_row(ADD_SITE_COMMAND))
+
     if len(rows) > 0:
         bot.send_message(message.chat.id, ADD_SITE__CHOOSE_SITE_TEXT, reply_markup = reply_markup)
     else:
         bot.send_message(message.chat.id, ADD_SITE__HAVE_NO_SITES_TO_ADD_TEXT)
 
 
-@bot.callback_query_handler(func = lambda callback: callback.data.startswith(ADD_SITE_COMMAND))
+@bot.callback_query_handler(func = is_callback_handler(ADD_SITE_COMMAND))
 @logger.log_telegram_callback
 @cancel_button_in_callback
 def add_site_callback_handler(callback):
-    discount_hunter = get_discount_hunter_by_chat_id(callback.message.chat.id)
-    tracking_site = get_tracking_site_by_name(get_callback_data(callback))
+    discount_hunter = get_discount_hunter(callback.message.chat.id)
+    tracking_site = get_tracked_site(get_callback_data(callback))
     if models.DiscountHunterSiteLink.objects.filter(
             discount_hunter = discount_hunter,
             site = tracking_site
@@ -99,7 +99,7 @@ def add_site_callback_handler(callback):
             active = True
         )
     else:
-        link = get_discount_hunter_site_link_by_chat_id_and_site_name(callback.message.chat.id, tracking_site.name)
+        link = get_discount_hunter_site_link(callback.message.chat.id, tracking_site.name)
         link.active = True
 
     bot.edit_message_text(
@@ -144,8 +144,8 @@ def add_site_get_password_step(user_message, bot_message, link, update):
         )
     else:
         filters = {
-            "discount_hunter": get_discount_hunter_by_chat_id(user_message.chat.id),
-            "site": get_tracking_site_by_name(link.site.name)
+            "discount_hunter": get_discount_hunter(user_message.chat.id),
+            "site": get_tracked_site(link.site.name)
         }
         update_model_instance(models.DiscountHunterSiteLink, link, filters)
         logger.log_inside_telegram_command(
@@ -163,8 +163,8 @@ def add_site_get_password_step(user_message, bot_message, link, update):
 def remove_site_command(message):
     """Позволяет убрать сайт из отслеживаемых пользователем."""
 
-    tracking_sites_names = get_discount_hunter_tracking_sites_names(message.chat.id)
-    rows = get_inline_button_rows(REMOVE_SITE_COMMAND, tracking_sites_names)
+    buttons_data = get_discount_hunter_tracked_sites_names(message.chat.id)
+    rows = get_inline_button_rows(REMOVE_SITE_COMMAND, buttons_data)
     # в обратный вызов передается название сайта
     reply_markup = get_inline_keyboard_markup(*rows, get_inline_cancel_button_row(REMOVE_SITE_COMMAND))
 
@@ -174,12 +174,12 @@ def remove_site_command(message):
         bot.send_message(message.chat.id, REMOVE_SITE__HAVE_NO_SITES_TEXT)
 
 
-@bot.callback_query_handler(func = lambda callback: callback.data.startswith(REMOVE_SITE_COMMAND))
+@bot.callback_query_handler(func = is_callback_handler(REMOVE_SITE_COMMAND))
 @logger.log_telegram_callback
 @cancel_button_in_callback
 def remove_site_callback_handler(callback):
     site_name = get_callback_data(callback)
-    link = get_discount_hunter_site_link_by_chat_id_and_site_name(callback.message.chat.id, site_name)
+    link = get_discount_hunter_site_link(callback.message.chat.id, site_name)
     link.active = False
     link.save()
     bot.edit_message_text(
@@ -196,20 +196,23 @@ def remove_site_callback_handler(callback):
 
 @bot.message_handler(commands = [TRACKED_SITES_COMMAND])
 @logger.log_telegram_command(TRACKED_SITES_COMMAND)
-def get_sites_command(message):
+def tracked_sites_command(message):
     """Выводит, отслеживаемые пользователем, сайты."""
 
     links = models.DiscountHunterSiteLink.objects.filter(
-        discount_hunter = get_discount_hunter_by_chat_id(message.chat.id),
+        discount_hunter = get_discount_hunter(message.chat.id),
         active = True
     )
-    if links.count() > 0:
-        reply_message = TRACKED_SITES__RESPONSE_OK_TEXT
-        for link in links:
-            reply_message += f"{link.site.name} : {link.site.address}\n"
+    buttons_data = {link.site.name: link.site.address for link in links}
+    rows = get_inline_button_rows(TRACKED_SITES_COMMAND, buttons_data, linked = True)
+
+    if len(rows) > 0:
+        reply_message = TRACKED_SITES__SUCCESS_RESPONSE_TEXT
     else:
         reply_message = TRACKED_SITES__HAVE_NO_SITES_TEXT
-    bot.send_message(message.chat.id, reply_message)
+    reply_markup = get_inline_keyboard_markup(*rows)
+
+    bot.send_message(message.chat.id, reply_message, reply_markup = reply_markup, disable_web_page_preview = True)
 
 
 @bot.message_handler(commands = [SITE_CREDENTIALS_COMMAND])
@@ -217,8 +220,8 @@ def get_sites_command(message):
 def site_credentials_command(message):
     """Временно показывает логин и пароль для отслеживаемого сайта."""
 
-    tracking_sites_names = get_discount_hunter_tracking_sites_names(message.chat.id)
-    rows = get_inline_button_rows(SITE_CREDENTIALS_COMMAND, tracking_sites_names)
+    buttons_data = get_discount_hunter_tracked_sites_names(message.chat.id)
+    rows = get_inline_button_rows(SITE_CREDENTIALS_COMMAND, buttons_data)
     # в обратный вызов передается название сайта
     reply_markup = get_inline_keyboard_markup(*rows, get_inline_cancel_button_row(SITE_CREDENTIALS_COMMAND))
 
@@ -230,11 +233,11 @@ def site_credentials_command(message):
     bot.send_message(message.chat.id, response_text, reply_markup = reply_markup)
 
 
-@bot.callback_query_handler(func = lambda callback: callback.data.startswith(SITE_CREDENTIALS_COMMAND))
+@bot.callback_query_handler(func = is_callback_handler(SITE_CREDENTIALS_COMMAND))
 @logger.log_telegram_callback
 @cancel_button_in_callback
 def site_credentials_callback_handler(callback):
-    link = get_discount_hunter_site_link_by_chat_id_and_site_name(
+    link = get_discount_hunter_site_link(
         callback.message.chat.id,
         get_callback_data(callback)
     )
@@ -256,26 +259,27 @@ def add_item_command(message):
     """Позволяет добавить вещь для отслеживания."""
 
     # выбор сайта, на котором найдена вещь
-    tracking_sites_names = get_discount_hunter_tracking_sites_names(message.chat.id)
-    rows = get_inline_button_rows(ADD_ITEM_COMMAND, tracking_sites_names)
+    buttons_data = get_discount_hunter_tracked_sites_names(message.chat.id)
+    rows = get_inline_button_rows(ADD_ITEM_COMMAND, buttons_data)
     # в обратный вызов передается название сайта
     reply_markup = get_inline_keyboard_markup(*rows, get_inline_cancel_button_row(ADD_ITEM_COMMAND))
 
     if len(rows) > 0:
-        bot.send_message(message.chat.id, ADD_ITEM__CHOOSE_SITE_OK_TEXT, reply_markup = reply_markup)
+        bot.send_message(message.chat.id, ADD_ITEM__CHOOSE_SITE_TEXT, reply_markup = reply_markup)
     else:
         bot.send_message(message.chat.id, ADD_ITEM__HAVE_NO_SITES_TEXT)
 
 
-@bot.callback_query_handler(func = is_numbered_callback_handler(ADD_ITEM_COMMAND, 0))
+# noinspection DuplicatedCode
+@bot.callback_query_handler(func = is_callback_handler(ADD_ITEM_COMMAND, 0))
 @logger.log_telegram_callback
 @cancel_button_in_callback
 def add_item_callback_handler(callback):
     """Получение сайта, на котором была найдена вещь."""
 
-    # в extras передается id инстанса TrackingSite
-    key_extras = models.TrackingSite.objects.get(name = get_callback_data(callback)).id
-    # выбор типа элемента одежды
+    # в extras передается id инстанса TrackedSite
+    key_extras = models.TrackedSite.objects.get(name = get_callback_data(callback)).id
+    # выбор типа вещи
     next_handler_number = 1
     rows = get_inline_button_rows(
         ADD_ITEM_COMMAND,
@@ -284,11 +288,11 @@ def add_item_callback_handler(callback):
         handler_number = next_handler_number,
         extras = key_extras
     )
-
     reply_markup = get_inline_keyboard_markup(
         *rows,
         get_inline_cancel_button_row(ADD_ITEM_COMMAND, handler_number = next_handler_number, extras = key_extras)
     )
+
     bot.edit_message_text(
         ADD_ITEM__CHOOSE_ITEM_TYPE_TEXT,
         callback.message.chat.id,
@@ -297,7 +301,7 @@ def add_item_callback_handler(callback):
     )
 
 
-@bot.callback_query_handler(func = is_numbered_callback_handler(ADD_ITEM_COMMAND, 1))
+@bot.callback_query_handler(func = is_callback_handler(ADD_ITEM_COMMAND, 1))
 @logger.log_telegram_callback
 @cancel_button_in_callback
 def add_item_callback_handler_1(callback):
@@ -312,7 +316,7 @@ def add_item_callback_handler_1(callback):
             get_inline_cancel_button_row(
                 ADD_ITEM_COMMAND,
                 handler_number = 2,
-                # в extras передается id инстанса TrackingSite
+                # в extras передается id инстанса TrackedSite
                 extras = get_callback_extras(callback)
             )
         )
@@ -321,8 +325,8 @@ def add_item_callback_handler_1(callback):
         callback.message,
         add_item_get_url_step,
         callback.message,
-        models.TrackingSite.objects.get(id = get_callback_extras(callback)),
-        models.ItemType.objects.get(name = get_callback_data(callback))
+        models.TrackedSite.objects.get(id = get_callback_extras(callback)),
+        models.ItemType.objects.get(name_en = get_callback_data(callback))
     )
 
 
@@ -333,7 +337,7 @@ def add_item_get_url_step(user_message, bot_message, site, item_type, recursive 
 
     try:
         item = models.Item(
-            discount_hunter_site_link = get_discount_hunter_site_link_by_chat_id_and_site_name(
+            discount_hunter_site_link = get_discount_hunter_site_link(
                 bot_message.chat.id,
                 site.name
             ),
@@ -364,6 +368,7 @@ def add_item_get_url_step(user_message, bot_message, site, item_type, recursive 
                 *rows,
                 get_inline_finish_button_row(ADD_ITEM_COMMAND, next_handler_number, key_extras)
             )
+
             bot.edit_message_text(
                 ADD_ITEM__CHOOSE_SIZES_TEXT,
                 bot_message.chat.id,
@@ -396,7 +401,7 @@ def add_item_get_url_step(user_message, bot_message, site, item_type, recursive 
                 reply_markup = get_inline_keyboard_markup(
                     get_inline_cancel_button_row(
                         ADD_ITEM_COMMAND,
-                        # в extras передается id инстанса TrackingSite
+                        # в extras передается id инстанса TrackedSite
                         extras = site.id
                     )
                 )
@@ -427,7 +432,7 @@ def get_button_texts_for_sizes(item, remove_size_callback_prefix):
 # todo: write change_item_sizes_command
 # todo: write add_default_item_type_sizes_command
 # todo: write remove_default_item_type_sizes_command
-@bot.callback_query_handler(func = is_numbered_callback_handler(ADD_ITEM_COMMAND, 2))
+@bot.callback_query_handler(func = is_callback_handler(ADD_ITEM_COMMAND, 2))
 @logger.log_telegram_callback
 @cancel_button_in_callback
 def add_item_callback_handler_2(callback):
@@ -440,17 +445,17 @@ def add_item_callback_handler_2(callback):
 
     if callback_data == FINISH_BUTTON_TEXT_EN:
         if len(item.sizes_to_order) == 1:
-            command_finish_text = ADD_ITEM__SUCCESS_FINISH_ONE_SIZE_TEMPLATE.format(
+            command_finish_text = ADD_ITEM__ONE_SIZE_TEMPLATE.format(
                 item_name = item.name,
                 sizes_to_order = item.sizes_to_order[0]
             )
         elif len(item.sizes_to_order) > 1:
-            command_finish_text = ADD_ITEM__SUCCESS_FINISH_MANE_SIZES_TEMPLATE.format(
+            command_finish_text = ADD_ITEM__MANY_SIZES_TEMPLATE.format(
                 item_name = item.name,
                 sizes_to_order = ", ".join(item.sizes_to_order)
             )
         else:
-            command_finish_text = ADD_ITEM__SUCCESS_FINISH_NO_SIZES_TEMPLATE.format(item_name = item.name)
+            command_finish_text = ADD_ITEM__NO_SIZES_TEMPLATE.format(item_name = item.name)
 
         bot.edit_message_text(command_finish_text, callback.message.chat.id, callback.message.id, )
     else:
@@ -474,10 +479,10 @@ def add_item_callback_handler_2(callback):
             )
 
         next_handler_number = get_callback_handler_number(callback)
-        buttons_names = get_button_texts_for_sizes(item, remove_size_callback_prefix)
+        buttons_data = get_button_texts_for_sizes(item, remove_size_callback_prefix)
         rows = get_inline_button_rows(
             ADD_ITEM_COMMAND,
-            buttons_names,
+            buttons_data,
             handler_number = next_handler_number,
             extras = callback_extras
         )
@@ -485,8 +490,95 @@ def add_item_callback_handler_2(callback):
             *rows,
             get_inline_finish_button_row(ADD_ITEM_COMMAND, next_handler_number, callback_extras)
         )
+
         bot.edit_message_text(
             ADD_ITEM__CHOOSE_SIZES_TEXT,
+            callback.message.chat.id,
+            callback.message.id,
+            reply_markup = reply_markup
+        )
+
+
+# todo: отвязать вещи от людей и идентифицировать их по ссылке на них (аналогично DiscountHunterSiteLink)
+@bot.message_handler(commands = [TRACKED_ITEMS_COMMAND])
+@logger.log_telegram_command(TRACKED_ITEMS_COMMAND)
+def tracked_items_command(message):
+    """Позволяет показать отслеживаемые вещи."""
+
+    # выбор сайта, вещи на котором будут показаны
+    buttons_data = get_discount_hunter_tracked_sites_names(message.chat.id)
+    rows = get_inline_button_rows(TRACKED_ITEMS_COMMAND, buttons_data)
+    reply_markup = get_inline_keyboard_markup(rows, get_inline_cancel_button_row(TRACKED_ITEMS_COMMAND))
+
+    if len(rows) > 0:
+        bot.send_message(message.chat.id, TRACKED_ITEMS__CHOOSE_SITE_TEXT, reply_markup = reply_markup)
+    else:
+        bot.send_message(message.chat.id, TRACKED_ITEMS__HAVE_NO_SITES_TEXT)
+
+
+# noinspection DuplicatedCode
+@bot.callback_query_handler(func = is_callback_handler(TRACKED_ITEMS_COMMAND, 0))
+@logger.log_telegram_callback
+@cancel_button_in_callback
+def tracked_item_callback_handler(callback):
+    """Получение сайта, вещи с которого будут показаны."""
+
+    # в extras передается id инстанса TrackedSite
+    key_extras = models.TrackedSite.objects.get(name = get_callback_data(callback)).id
+    # выбор типа вещей
+    next_handler_number = 1
+    rows = get_inline_button_rows(
+        TRACKED_ITEMS_COMMAND,
+        models.ItemType.rus_to_en,
+        buttons_in_row = 2,
+        handler_number = next_handler_number,
+        extras = key_extras
+    )
+    reply_markup = get_inline_keyboard_markup(
+        *rows,
+        get_inline_cancel_button_row(TRACKED_ITEMS_COMMAND, handler_number = next_handler_number, extras = key_extras)
+    )
+
+    bot.edit_message_text(
+        TRACKED_ITEMS__CHOOSE_ITEM_TYPE,
+        callback.message.chat.id,
+        callback.message.id,
+        reply_markup = reply_markup,
+        disable_web_page_preview = True
+    )
+
+
+@bot.callback_query_handler(func = is_callback_handler(TRACKED_ITEMS_COMMAND, 1))
+@logger.log_telegram_callback
+@cancel_button_in_callback
+def tracked_item_callback_handler_1(callback):
+    """Получение типа вещей, которые будут показаны."""
+
+    item_type = models.ItemType.objects.get(name_en = get_callback_data(callback))
+    tracked_items = get_discount_hunter_tracked_items(
+        callback.message.chat.id,
+        models.TrackedSite.objects.get(id = int(get_callback_extras(callback))).name,
+        item_type
+    )
+    buttons_data = {item.name: item.url for item in tracked_items}
+    # одна вещь на строку
+    rows = get_inline_button_rows(TRACKED_ITEMS_COMMAND, buttons_data, buttons_in_row = 1, linked = True)
+    reply_markup = get_inline_keyboard_markup(*rows)
+
+    if len(rows) > 0:
+        if len(rows) == 1:
+            message_text = TRACKED_ITEMS__ONE_ITEM_TEMPLATE.format(item_type.name_en)
+        else:
+            message_text = TRACKED_ITEMS__MANY_ITEMS_TEMPLATE.format(item_type.name_en)
+        bot.edit_message_text(
+            message_text,
+            callback.message.chat.id,
+            callback.message.id,
+            reply_markup = reply_markup
+        )
+    else:
+        bot.edit_message_text(
+            TRACKED_ITEMS__NO_ITEMS_TEMPLATE.format(item_type.name_en),
             callback.message.chat.id,
             callback.message.id,
             reply_markup = reply_markup
