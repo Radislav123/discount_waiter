@@ -63,7 +63,7 @@ def start_command(message):
         )
         discount_hunter.save()
         logger.log_inside_telegram_command(logging.DEBUG, message, "discount hunter was created")
-    return bot.send_message(message.chat.id, START_COMMAND_RESPONSE_TEXT)
+    bot.send_message(message.chat.id, START__RESPONSE_TEXT)
 
 
 @bot.message_handler(commands = [ADD_SITE_COMMAND])
@@ -73,22 +73,21 @@ def add_site_command(message):
 
     tracking_sites_names = get_discount_hunter_tracking_sites_names(message.chat.id)
     sites_names = [site.name for site in models.TrackingSite.objects.all()]
+    # в обратный вызов передается название сайта
     rows = get_inline_button_rows(ADD_SITE_COMMAND, sites_names, forbidden_button_texts = tracking_sites_names)
 
     reply_markup = get_inline_keyboard_markup(*rows, get_inline_cancel_button_row(ADD_SITE_COMMAND))
     if len(rows) > 0:
-        send_message_return = bot.send_message(
+        bot.send_message(
             message.chat.id,
-            ADD_SITE_COMMAND_RESPONSE_TEXT,
+            ADD_SITE__CHOOSE_SITE_TEXT,
             reply_markup = reply_markup
         )
     else:
-        send_message_return = bot.send_message(
+        bot.send_message(
             message.chat.id,
-            ADD_SITE_COMMAND_RESPONSE_TEXT_1
+            ADD_SITE__HAVE_NO_SITES_TO_ADD_TEXT
         )
-    # в обратный вызов передается название сайта
-    return send_message_return
 
 
 @bot.callback_query_handler(func = lambda callback: callback.data.startswith(ADD_SITE_COMMAND))
@@ -111,7 +110,7 @@ def add_site_callback_handler(callback):
         link.active = True
 
     bot.edit_message_text(
-        ADD_SITE_REQUEST_LOGIN_TEMPLATE.format(site_name = link.site.name),
+        ADD_SITE__INPUT_LOGIN_TEMPLATE.format(site_name = link.site.name),
         callback.message.chat.id,
         callback.message.id
     )
@@ -134,7 +133,7 @@ def add_site_get_login_step(user_message, bot_message, link, update):
     link.login = user_message.text
     bot.delete_message(user_message.chat.id, user_message.id)
     bot.edit_message_text(
-        ADD_SITE_REQUEST_PASSWORD_TEMPLATE.format(site_name = link.site.name),
+        ADD_SITE__INPUT_PASSWORD_TEMPLATE.format(site_name = link.site.name),
         bot_message.chat.id,
         bot_message.id
     )
@@ -174,8 +173,8 @@ def add_site_get_password_step(user_message, bot_message, link, update):
             f"discount_hunter_site_link for \"{link.site.name}\" site was updated"
         )
     bot.delete_message(user_message.chat.id, user_message.id)
-    return bot.edit_message_text(
-        ADD_SITE_SUCCESS_RESPONSE_TEXT,
+    bot.edit_message_text(
+        ADD_SITE__SUCCESS_FINISH_TEXT,
         bot_message.chat.id,
         bot_message.id
     )
@@ -189,21 +188,20 @@ def remove_site_command(message):
 
     tracking_sites_names = get_discount_hunter_tracking_sites_names(message.chat.id)
     rows = get_inline_button_rows(REMOVE_SITE_COMMAND, tracking_sites_names)
-
+    # в обратный вызов передается название сайта
     reply_markup = get_inline_keyboard_markup(*rows, get_inline_cancel_button_row(REMOVE_SITE_COMMAND))
+
     if len(rows) > 0:
-        send_message_return = bot.send_message(
+        bot.send_message(
             message.chat.id,
-            REMOVE_SITE_COMMAND_RESPONSE_TEXT,
+            REMOVE_SITE__CHOOSE_SITE_TEXT,
             reply_markup = reply_markup
         )
     else:
-        send_message_return = bot.send_message(
+        bot.send_message(
             message.chat.id,
-            REMOVE_SITE_COMMAND_RESPONSE_TEXT_1
+            REMOVE_SITE__HAVE_NO_SITES_TEXT
         )
-    # в обратный вызов передается название сайта
-    return send_message_return
 
 
 @bot.callback_query_handler(func = lambda callback: callback.data.startswith(REMOVE_SITE_COMMAND))
@@ -214,8 +212,8 @@ def remove_site_callback_handler(callback):
     link = get_discount_hunter_site_link_by_chat_id_and_site_name(callback.message.chat.id, site_name)
     link.active = False
     link.save()
-    handler_return = bot.edit_message_text(
-        REMOVE_SITE_SUCCESS_RESPONSE_TEMPLATE.format(site_name = site_name),
+    bot.edit_message_text(
+        REMOVE_SITE__SUCCESS_FINISH_TEMPLATE.format(site_name = site_name),
         callback.message.chat.id,
         callback.message.id
     )
@@ -237,12 +235,12 @@ def get_sites_command(message):
         active = True
     )
     if links.count() > 0:
-        reply_message = GET_SITES_COMMAND_RESPONSE_TEXT
+        reply_message = TRACKED_SITES__RESPONSE_OK_TEXT
         for link in links:
             reply_message += f"{link.site.name} : {link.site.address}\n"
     else:
-        reply_message = GET_SITES_COMMAND_RESPONSE_TEXT_1
-    return bot.send_message(message.chat.id, reply_message)
+        reply_message = TRACKED_SITES__HAVE_NO_SITES_TEXT
+    bot.send_message(message.chat.id, reply_message)
 
 
 @bot.message_handler(commands = [SITE_CREDENTIALS_COMMAND])
@@ -252,14 +250,15 @@ def site_credentials_command(message):
 
     tracking_sites_names = get_discount_hunter_tracking_sites_names(message.chat.id)
     rows = get_inline_button_rows(SITE_CREDENTIALS_COMMAND, tracking_sites_names)
-
-    reply_markup = get_inline_keyboard_markup(*rows, get_inline_cancel_button_row(SITE_CREDENTIALS_COMMAND))
-    if len(rows) > 0:
-        response_text = SITE_CREDENTIALS_COMMAND_RESPONSE_TEXT
-    else:
-        response_text = SITE_CREDENTIALS_COMMAND_RESPONSE_TEXT_1
     # в обратный вызов передается название сайта
-    return bot.send_message(message.chat.id, response_text, reply_markup = reply_markup)
+    reply_markup = get_inline_keyboard_markup(*rows, get_inline_cancel_button_row(SITE_CREDENTIALS_COMMAND))
+
+    if len(rows) > 0:
+        response_text = SITE_CREDENTIALS__CHOOSE_SITE_TEXT
+    else:
+        response_text = SITE_CREDENTIALS__HAVE_NO_SITES_TEXT
+
+    bot.send_message(message.chat.id, response_text, reply_markup = reply_markup)
 
 
 @bot.callback_query_handler(func = lambda callback: callback.data.startswith(SITE_CREDENTIALS_COMMAND))
@@ -271,15 +270,14 @@ def site_credentials_callback_handler(callback):
         get_callback_data(callback)
     )
     message_text = f"логин : {link.login}\nпароль : {link.password}"
-    handler_return = bot.edit_message_text(message_text, callback.message.chat.id, callback.message.id)
+    bot.edit_message_text(message_text, callback.message.chat.id, callback.message.id)
     delayed_task(DELETE_SITE_CREDENTIALS_OFFSET, bot.delete_message, callback.message.chat.id, callback.message.id)
     logger.log_inside_telegram_command(
         logging.INFO,
         callback,
         f"site credentials for \"{link.site.name}\" site will be deleted"
-        f" from the chat after {DELETE_SITE_CREDENTIALS_OFFSET} seconds"
+        f" from the the chat after {DELETE_SITE_CREDENTIALS_OFFSET} seconds"
     )
-    return handler_return
 
 
 # noinspection DuplicatedCode
@@ -291,21 +289,20 @@ def add_item_command(message):
     # выбор сайта, на котором найдена вещь
     tracking_sites_names = get_discount_hunter_tracking_sites_names(message.chat.id)
     rows = get_inline_button_rows(ADD_ITEM_COMMAND, tracking_sites_names)
-
+    # в обратный вызов передается название сайта
     reply_markup = get_inline_keyboard_markup(*rows, get_inline_cancel_button_row(ADD_ITEM_COMMAND))
+
     if len(rows) > 0:
-        send_message_return = bot.send_message(
+        bot.send_message(
             message.chat.id,
-            ADD_ITEM_COMMAND_RESPONSE_TEXT,
+            ADD_ITEM__CHOOSE_SITE_OK_TEXT,
             reply_markup = reply_markup
         )
     else:
-        send_message_return = bot.send_message(
+        bot.send_message(
             message.chat.id,
-            ADD_ITEM_COMMAND_RESPONSE_TEXT_1
+            ADD_ITEM__HAVE_NO_SITES_TEXT
         )
-    # в обратный вызов передается название сайта
-    return send_message_return
 
 
 @bot.callback_query_handler(func = is_numbered_callback_handler(ADD_ITEM_COMMAND, 0))
@@ -331,7 +328,7 @@ def add_item_callback_handler(callback):
         get_inline_cancel_button_row(ADD_ITEM_COMMAND, handler_number = next_handler_number, extras = key_extras)
     )
     bot.edit_message_text(
-        ADD_ITEM_COMMAND_RESPONSE_TEXT_2,
+        ADD_ITEM__CHOOSE_ITEM_TYPE_TEXT,
         callback.message.chat.id,
         callback.message.id,
         reply_markup = reply_markup
@@ -346,7 +343,7 @@ def add_item_callback_handler_1(callback):
 
     # запрос на ввод ссылки на элемент одежды
     bot.edit_message_text(
-        ADD_ITEM_REQUEST_URL_TEXT,
+        ADD_ITEM__INPUT_URL_TEXT,
         callback.message.chat.id,
         callback.message.id,
         reply_markup = get_inline_keyboard_markup(
@@ -406,19 +403,19 @@ def add_item_get_url_step(user_message, bot_message, site, item_type, recursive 
                 get_inline_finish_button_row(ADD_ITEM_COMMAND, next_handler_number, key_extras)
             )
             bot.edit_message_text(
-                ADD_ITEM_REQUEST_SIZES_TEXT,
+                ADD_ITEM__CHOOSE_SIZES_TEXT,
                 bot_message.chat.id,
                 bot_message.id,
                 reply_markup = reply_markup
             )
         else:
             bot.edit_message_text(
-                ADD_ITEM_NOT_FOUND_INFORMATION_TEXT,
+                ADD_ITEM__NOT_FOUND_INFORMATION_TEXT,
                 bot_message.chat.id,
                 bot_message.id
             )
             item.delete()
-            log_message = f"Not found elements ({scraper.not_found_elements})" \
+            log_message = f"not found elements ({scraper.not_found_elements})" \
                           f" on the page ({item.url})."
             logger.log_inside_telegram_command(
                 logging.INFO,
@@ -426,10 +423,10 @@ def add_item_get_url_step(user_message, bot_message, site, item_type, recursive 
                 log_message
             )
     except ValidationError as error:
-        new_bot_message_text = ADD_ITEM_INCORRECT_URL
+        new_bot_message_text = ADD_ITEM__INCORRECT_URL_TEXT
         # noinspection PyUnboundLocalVariable
         if error.message == item.url_incorrect_domain_error_text:
-            new_bot_message_text = ADD_ITEM_INCORRECT_DOMAIN_TEMPLATE.format(
+            new_bot_message_text = ADD_ITEM__INCORRECT_DOMAIN_TEMPLATE.format(
                 url = user_message.text,
                 site_name = site.name
             )
@@ -469,10 +466,9 @@ def get_button_texts_for_sizes(item, remove_size_callback_prefix):
 
 
 # todo: write remove_item_command
-# todo: write add_item_sizes_command
-# todo: write remove_item_sizes_command
-# todo: write add_default_item_sizes_command
-# todo: write remove_default_item_sizes_command
+# todo: write change_item_sizes_command
+# todo: write add_default_item_type_sizes_command
+# todo: write remove_default_item_type_sizes_command
 @bot.callback_query_handler(func = is_numbered_callback_handler(ADD_ITEM_COMMAND, 2))
 @logger.log_telegram_callback
 @cancel_button_in_callback
@@ -486,17 +482,17 @@ def add_item_callback_handler_2(callback):
 
     if callback_data == FINISH_BUTTON_TEXT_EN:
         if len(item.sizes_to_order) == 1:
-            command_finish_text = ADD_ITEM_COMMAND_FINISH_TEMPLATE.format(
+            command_finish_text = ADD_ITEM__SUCCESS_FINISH_ONE_SIZE_TEMPLATE.format(
                 item_name = item.name,
                 sizes_to_order = item.sizes_to_order[0]
             )
         elif len(item.sizes_to_order) > 1:
-            command_finish_text = ADD_ITEM_COMMAND_FINISH_TEMPLATE_1.format(
+            command_finish_text = ADD_ITEM__SUCCESS_FINISH_MANE_SIZES_TEMPLATE.format(
                 item_name = item.name,
                 sizes_to_order = ", ".join(item.sizes_to_order)
             )
         else:
-            command_finish_text = ADD_ITEM_COMMAND_FINISH_TEMPLATE_2.format(item_name = item.name)
+            command_finish_text = ADD_ITEM__SUCCESS_FINISH_NO_SIZES_TEMPLATE.format(item_name = item.name)
         bot.edit_message_text(
             command_finish_text,
             callback.message.chat.id,
@@ -535,7 +531,7 @@ def add_item_callback_handler_2(callback):
             get_inline_finish_button_row(ADD_ITEM_COMMAND, next_handler_number, callback_extras)
         )
         bot.edit_message_text(
-            ADD_ITEM_REQUEST_SIZES_TEXT,
+            ADD_ITEM__CHOOSE_SIZES_TEXT,
             callback.message.chat.id,
             callback.message.id,
             reply_markup = reply_markup
@@ -547,7 +543,7 @@ def add_item_callback_handler_2(callback):
 def help_command(message):
     """Выводит информацию о боте."""
 
-    return bot.send_message(message.chat.id, BOT_DESCRIPTION)
+    bot.send_message(message.chat.id, BOT_DESCRIPTION)
 
 
 @bot.message_handler(commands = [COMMAND_LIST_COMMAND])
@@ -555,14 +551,14 @@ def help_command(message):
 def command_list_command(message):
     """Выводит список доступных команд."""
 
-    return bot.send_message(message.chat.id, get_command_list_text())
+    bot.send_message(message.chat.id, get_command_list_text())
 
 
 @bot.message_handler(content_types = ["text"])
 def unrecognized_messages(message):
     """Дает ответ, если сообщение пользователя не было распознано."""
 
-    return bot.send_message(message.chat.id, UNRECOGNIZED_MESSAGE_RESPONSE)
+    bot.send_message(message.chat.id, UNRECOGNIZED_MESSAGE_RESPONSE)
 
 
 if __name__ == '__main__':
