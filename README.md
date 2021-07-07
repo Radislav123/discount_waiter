@@ -18,16 +18,14 @@ discount_waiter_env/Scripts/activate.bat                # Windows
 
 # Требуемые библиотеки
 `pip install -r requirements.txt`
-У Scrapy могут быть проблемы с установкой на Windows через pip, в таких случаях имеет смысл установить
-conda-окружение и использовать его.
-  
+
 [*requirements.txt*](https://pip.pypa.io/en/stable/user_guide/#requirements-files)  
 Версии библиотек могут быть не самыми новыми, но с ними все должно работать.
 
 # Описание модулей проекта
-1) [*discount_waiter/*](/discount_waiter) - настройки проекта Django
+1) [*discount_waiter/*](/discount_waiter) - настройки Django-проекта
 2) [*scrapers_app/*](/scrapers_app) - все, что связано со скрапингом данных с сайтов
-    1) [*scrapers_app/scrapers/*](/scrapers_app/scrapers) - скраперы (использование библиотеки Scrapy)
+    1) [*scrapers_app/scrapers/*](/scrapers_app/scrapers) - скраперы
 3) [*telegram_bot_app/*](/telegram_bot_app) - все, что связано с Telegram-ботом
     1) [*telegram_bot_app/telegram_bot/*](/telegram_bot_app/telegram_bot) -
        Telegram-бот (использование библиотеки pyTelegramBotAPI)
@@ -37,7 +35,8 @@ conda-окружение и использовать его.
 1) [*attachments/*](/attachments) - обычно не код, но важное для проекта
 2) [*discount_waiter_env/*](/discount_waiter_env) - тут должен лежать интерпретер
 3) [*secure/*](/secure) - тут должно лежать то, что не сохраняется в git (например, пароли)
-4) [*service_app/scripts/*](/service_app/scripts) - скрипты проекта Django
+4) [*service_app/scripts/*](/service_app/scripts) - скрипты Django-проекта
+5) [*logs/*](logs) - логи
 
 # База данных
 [*attachments/manuals/DATABASE.md*](/attachments/manuals/DATABASE.md)
