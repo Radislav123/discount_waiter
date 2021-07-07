@@ -14,6 +14,7 @@ SIZES_ON_SITE = "sizes_on_site"
 class ZaraItemInfoScraper:
     # информация, которая должна быть
     elements = {
+        # todo: сделать список xpath-ов
         NAME: '//*[@class = "product-detail-info__name"]',
         SIZES_ON_SITE: '//*[@class = "product-size-info__main-label"]'
     }
@@ -33,8 +34,8 @@ class ZaraItemInfoScraper:
     def run(self):
         """Записывает в вещь информацию, которая есть на странице."""
 
-        for attr_name in self.found_elements:
-            setattr(self.item, attr_name, getattr(self, f"get_item_{attr_name}")())
+        self.item.name = self.get_item_name()
+        self.item.sizes_on_site = self.get_sizes()
 
     def get_page_html_tree(self):
         response = requests.get(self.item.url, headers = HEADERS)
@@ -44,16 +45,20 @@ class ZaraItemInfoScraper:
     def get_item_name(self):
         return self.found_elements[NAME][0].text
 
-    def get_item_sizes_on_site(self):
+    def get_sizes(self):
         return [x.text for x in self.found_elements[SIZES_ON_SITE]]
 
     @property
     def not_found_elements(self):
         needed_elements = copy.copy(list(self.elements.keys()))
-        if self.item.type.has_no_sizes:
+        if not self.item.has_sizes:
             needed_elements.remove(SIZES_ON_SITE)
-        return [x for x in self.elements if x in needed_elements]
+        return [x for x in needed_elements if x not in self.found_elements]
 
     @property
     def found_all_elements(self):
-        return len(self.not_found_elements) == 0
+        not_found_elements = self.not_found_elements
+        found_all_elements = len(not_found_elements) == 0
+        if len(not_found_elements) == 1 and SIZES_ON_SITE not in self.found_elements and not self.item.has_sizes:
+            found_all_elements = True
+        return found_all_elements

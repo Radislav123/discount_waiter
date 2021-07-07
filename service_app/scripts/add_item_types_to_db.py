@@ -8,22 +8,18 @@ logger = get_logger(__name__)
 
 
 def add_item_types():
-    for type_name in zip(models.ItemType.name_choices_en, models.ItemType.name_choices_rus):
-        clothes_type = models.ItemType(
-            name = type_name[0],
-            name_rus = type_name[1],
-            has_no_sizes = True if type_name[0] in models.ItemType.has_no_sizes_list else False
-        )
+    for name_en, name_rus in zip(models.ItemType.name_choices_en, models.ItemType.name_choices_rus):
+        clothes_type = models.ItemType(name_en = name_en, name_rus = name_rus)
 
-        if len(models.ItemType.objects.filter(name = type_name[0])) == 0:
+        if len(models.ItemType.objects.filter(name_en = name_en)) == 0:
             clothes_type.save()
-            log_message = f"{type_name[0]} clothes type - successfully added to the db"
+            log_message = f"{name_en} clothes type - successfully added to the db"
         else:
             update_data = clothes_type.__dict__.copy()
             del update_data["_state"]
             del update_data["id"]
-            models.ItemType.objects.filter(name = type_name[0]).update(**update_data)
-            log_message = f"{type_name[0]} ({type_name[1]}) clothes type - successfully updated in the db"
+            models.ItemType.objects.filter(name_en = name_en).update(**update_data)
+            log_message = f"{name_en} ({name_rus}) clothes type - successfully updated in the db"
 
         logger.info(log_message)
         print(log_message)

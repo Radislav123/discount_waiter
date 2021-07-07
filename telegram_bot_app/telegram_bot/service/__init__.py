@@ -177,18 +177,15 @@ def get_discount_hunter_tracked_sites_names(chat_id):
     return [link.site.name for link in get_discount_hunter_tracked_sites(chat_id) if link.active]
 
 
-def get_discount_hunter_tracked_items(chat_id, site_name, item_type = None):
-    if item_type:
-        if type(item_type) is int or type(item_type) is str and item_type.isdigit():
-            item_type = models.ItemType.objects.get(id = int(item_type))
-        tracked_items = models.Item.objects.filter(
-            discount_hunter_site_link = get_discount_hunter_site_link(chat_id, site_name),
-            type = item_type
-        )
+def get_discount_hunter_tracked_items(discount_hunter, site = None, item_type = None):
+    if site and item_type:
+        tracked_items = models.Item.objects.filter(discount_hunter = discount_hunter, site = site, type = item_type)
+    elif site:
+        tracked_items = models.Item.objects.filter(discount_hunter = discount_hunter, site = site)
+    elif item_type:
+        tracked_items = models.Item.objects.filter(discount_hunter = discount_hunter, item_type = item_type)
     else:
-        tracked_items = models.Item.objects.filter(
-            discount_hunter_site_link = get_discount_hunter_site_link(chat_id, site_name)
-        )
+        tracked_items = models.Item.objects.filter(discount_hunter = discount_hunter)
     return tracked_items
 
 
@@ -204,7 +201,7 @@ def get_discount_hunter(chat_id):
 
 
 def get_tracked_site(site_name):
-    return models.TrackedSite.objects.get(name = site_name)
+    return models.Site.objects.get(name = site_name)
 
 
 def get_discount_hunter_site_link(chat_id, site_name):
