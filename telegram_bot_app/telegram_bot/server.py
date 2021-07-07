@@ -78,16 +78,9 @@ def add_site_command(message):
 
     reply_markup = get_inline_keyboard_markup(*rows, get_inline_cancel_button_row(ADD_SITE_COMMAND))
     if len(rows) > 0:
-        bot.send_message(
-            message.chat.id,
-            ADD_SITE__CHOOSE_SITE_TEXT,
-            reply_markup = reply_markup
-        )
+        bot.send_message(message.chat.id, ADD_SITE__CHOOSE_SITE_TEXT, reply_markup = reply_markup)
     else:
-        bot.send_message(
-            message.chat.id,
-            ADD_SITE__HAVE_NO_SITES_TO_ADD_TEXT
-        )
+        bot.send_message(message.chat.id, ADD_SITE__HAVE_NO_SITES_TO_ADD_TEXT)
 
 
 @bot.callback_query_handler(func = lambda callback: callback.data.startswith(ADD_SITE_COMMAND))
@@ -114,13 +107,7 @@ def add_site_callback_handler(callback):
         callback.message.chat.id,
         callback.message.id
     )
-    bot.register_next_step_handler(
-        callback.message,
-        add_site_get_login_step,
-        callback.message,
-        link,
-        not link.active
-    )
+    bot.register_next_step_handler(callback.message, add_site_get_login_step, callback.message, link, not link.active)
     logger.log_inside_telegram_command(
         logging.DEBUG,
         callback,
@@ -137,13 +124,7 @@ def add_site_get_login_step(user_message, bot_message, link, update):
         bot_message.chat.id,
         bot_message.id
     )
-    bot.register_next_step_handler(
-        user_message,
-        add_site_get_password_step,
-        bot_message,
-        link,
-        update
-    )
+    bot.register_next_step_handler(user_message, add_site_get_password_step, bot_message, link, update)
     logger.log_inside_telegram_command(
         logging.DEBUG,
         user_message,
@@ -173,11 +154,7 @@ def add_site_get_password_step(user_message, bot_message, link, update):
             f"discount_hunter_site_link for \"{link.site.name}\" site was updated"
         )
     bot.delete_message(user_message.chat.id, user_message.id)
-    bot.edit_message_text(
-        ADD_SITE__SUCCESS_FINISH_TEXT,
-        bot_message.chat.id,
-        bot_message.id
-    )
+    bot.edit_message_text(ADD_SITE__SUCCESS_FINISH_TEXT, bot_message.chat.id, bot_message.id)
 
 
 # noinspection DuplicatedCode
@@ -192,16 +169,9 @@ def remove_site_command(message):
     reply_markup = get_inline_keyboard_markup(*rows, get_inline_cancel_button_row(REMOVE_SITE_COMMAND))
 
     if len(rows) > 0:
-        bot.send_message(
-            message.chat.id,
-            REMOVE_SITE__CHOOSE_SITE_TEXT,
-            reply_markup = reply_markup
-        )
+        bot.send_message(message.chat.id, REMOVE_SITE__CHOOSE_SITE_TEXT, reply_markup = reply_markup)
     else:
-        bot.send_message(
-            message.chat.id,
-            REMOVE_SITE__HAVE_NO_SITES_TEXT
-        )
+        bot.send_message(message.chat.id, REMOVE_SITE__HAVE_NO_SITES_TEXT)
 
 
 @bot.callback_query_handler(func = lambda callback: callback.data.startswith(REMOVE_SITE_COMMAND))
@@ -222,7 +192,6 @@ def remove_site_callback_handler(callback):
         callback,
         f"discount_hunter_site_link for \"{link.site.name}\" site was deactivated"
     )
-    return handler_return
 
 
 @bot.message_handler(commands = [TRACKED_SITES_COMMAND])
@@ -293,16 +262,9 @@ def add_item_command(message):
     reply_markup = get_inline_keyboard_markup(*rows, get_inline_cancel_button_row(ADD_ITEM_COMMAND))
 
     if len(rows) > 0:
-        bot.send_message(
-            message.chat.id,
-            ADD_ITEM__CHOOSE_SITE_OK_TEXT,
-            reply_markup = reply_markup
-        )
+        bot.send_message(message.chat.id, ADD_ITEM__CHOOSE_SITE_OK_TEXT, reply_markup = reply_markup)
     else:
-        bot.send_message(
-            message.chat.id,
-            ADD_ITEM__HAVE_NO_SITES_TEXT
-        )
+        bot.send_message(message.chat.id, ADD_ITEM__HAVE_NO_SITES_TEXT)
 
 
 @bot.callback_query_handler(func = is_numbered_callback_handler(ADD_ITEM_COMMAND, 0))
@@ -409,11 +371,7 @@ def add_item_get_url_step(user_message, bot_message, site, item_type, recursive 
                 reply_markup = reply_markup
             )
         else:
-            bot.edit_message_text(
-                ADD_ITEM__NOT_FOUND_INFORMATION_TEXT,
-                bot_message.chat.id,
-                bot_message.id
-            )
+            bot.edit_message_text(ADD_ITEM__NOT_FOUND_INFORMATION_TEXT, bot_message.chat.id, bot_message.id)
             item.delete()
             log_message = f"not found elements ({scraper.not_found_elements})" \
                           f" on the page ({item.url})."
@@ -493,11 +451,8 @@ def add_item_callback_handler_2(callback):
             )
         else:
             command_finish_text = ADD_ITEM__SUCCESS_FINISH_NO_SIZES_TEMPLATE.format(item_name = item.name)
-        bot.edit_message_text(
-            command_finish_text,
-            callback.message.chat.id,
-            callback.message.id,
-        )
+
+        bot.edit_message_text(command_finish_text, callback.message.chat.id, callback.message.id, )
     else:
         if callback_data.startswith(remove_size_callback_prefix):
             item.sizes.remove(callback_data.removeprefix(remove_size_callback_prefix))
