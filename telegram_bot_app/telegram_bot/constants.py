@@ -57,7 +57,12 @@ DELETE_SITE_CREDENTIALS_OFFSET = 60
 ADD_ITEM__CHOOSE_SITE_TEXT = f"{CHOOSE_SITE_DEFAULT_TEXT}, на котором была найдена вещь."
 ADD_ITEM__HAVE_NO_SITES_TEXT = HAVE_NO_SITES_DEFAULT_TEXT
 ADD_ITEM__CHOOSE_ITEM_TYPE_TEXT = f"{CHOOSE_ITEM_TYPE_DEFAULT_TEXT}."
-ADD_ITEM__INPUT_URL_TEXT = "Введите ссылку на вещь."
+ADD_ITEM__INPUT_URL_TEXT = f"Введите ссылку на вещь.\n" \
+                           f"Вещи идентифицируются по ссылкам на них, но проверки на то, что у пользователя уже есть" \
+                           f"вещь с введенной ссылкой, нет\n" \
+                           f"Поэтому не добавляйте одну и ту же вещь несколько раз." \
+                           f"Размеры можно изменить - /{CHANGE_ITEM_SIZES_COMMAND}," \
+                           f"а вещь можно убрать из отслеживаемых - /{REMOVE_ITEM_COMMAND}"
 ADD_ITEM__HAS_ITEM_SIZES_TEXT = "Есть ли у выбранной Вами вещи размеры?"
 ADD_ITEM__INCORRECT_URL_TEXT = "Введенная ссылка некорректна, введите корректную ссылку на вещь."
 ADD_ITEM__INCORRECT_DOMAIN_TEMPLATE = "Введенная [ссылка]({url})" \
@@ -80,13 +85,24 @@ ADD_ITEM__NO_SIZES_TEMPLATE = "Вещь - [{item_name}]({url}) - добавле�
 
 TRACKED_ITEMS__CHOOSE_SITE_TEXT = f"{CHOOSE_SITE_DEFAULT_TEXT}, вещи с которого хотите увидеть."
 TRACKED_ITEMS__HAVE_NO_SITES_TEXT = HAVE_NO_SITES_DEFAULT_TEXT
-TRACKED_ITEMS__CHOOSE_ITEM_TYPE = f"Выберите тип вещей из предложенных ниже, которые хотите увидеть."
+TRACKED_ITEMS__CHOOSE_ITEM_TYPE = "Выберите, вещи какого типа из предложенных ниже хотите увидеть."
 TRACKED_ITEMS__ONE_ITEM_TEMPLATE = "Ваша единственная вещь типа {item_type_name}:"
 TRACKED_ITEMS__MANY_ITEMS_TEMPLATE = "Ваши вещи типа {item_type_name}:"
 TRACKED_ITEMS__NO_ITEMS_TEMPLATE = "У Вас нет ни одной вещи типа {item_type_name}."
 TRACKED_ITEMS__ONE_ITEM_ALL_TYPES_TEXT = "Ваша единственная вещь:"
 TRACKED_ITEMS__MANY_ITEMS_ALL_TYPES_TEXT = "Ваши вещи:"
 TRACKED_ITEMS__NO_ITEMS_ALL_TYPES_TEXT = "У Вас нет ни одной вещи."
+
+REMOVE_ITEM__CHOOSE_SITE_TEXT = f"{CHOOSE_SITE_DEFAULT_TEXT}, вещь с которого хотите убрать из отслеживаемых."
+REMOVE_ITEM__HAVE_NO_SITES_TEXT = HAVE_NO_SITES_DEFAULT_TEXT
+REMOVE_ITEM__CHOOSE_ITEM_TYPE = "Выберите, вещь какого типа из предложенных ниже Вы хотите убрать из отслеживаемых."
+REMOVE_ITEM__ONE_ITEM_TEMPLATE = "Ваша единственная вещь типа {item_type_name}:"
+REMOVE_ITEM__MANY_ITEMS_TEMPLATE = "Ваши вещи типа {item_type_name}:"
+REMOVE_ITEM__NO_ITEMS_TEMPLATE = "У Вас нет ни одной вещи типа {item_type_name}."
+REMOVE_ITEM__ONE_ITEM_ALL_TYPES_TEXT = "Ваша единственная вещь:"
+REMOVE_ITEM__MANY_ITEMS_ALL_TYPES_TEXT = "Ваши вещи:"
+REMOVE_ITEM__NO_ITEMS_ALL_TYPES_TEXT = "У Вас нет ни одной вещи."
+REMOVE_ITEM__SUCCESS_FINISH_TEMPLATE = "Вещь - [{item_name}]({url}) - убрана из отслеживаемых."
 
 # первый аргумент - команда, которая связана с обратным вызовом
 # второй аргумент - номер хендлера (или шага)

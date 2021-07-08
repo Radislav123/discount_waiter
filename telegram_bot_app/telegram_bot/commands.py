@@ -25,3 +25,9 @@ ADD_ITEM_COMMAND_DESCRIPTION = "добавить вещь для отслежи�
 
 TRACKED_ITEMS_COMMAND = "tracked_items"
 TRACKED_ITEMS_COMMAND_DESCRIPTION = "показать отслеживаемые вещи"
+
+REMOVE_ITEM_COMMAND = "remove_item"
+REMOVE_ITEM_COMMAND_DESCRIPTION = "убрать вещь из отслеживаемых"
+
+CHANGE_ITEM_SIZES_COMMAND = "change_item_sizes"
+CHANGE_ITEM_SIZES_COMMAND_DESCRIPTION = "изменить размеры вещи"

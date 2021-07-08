@@ -8,6 +8,7 @@ from service_app.logger import get_logger
 logger = get_logger(__name__)
 
 
+# todo: прочитать про хранение и обработку личных данных
 if __name__ == '__main__':
     set_bot_command_list()
     logger.info("bot command list was sent")
