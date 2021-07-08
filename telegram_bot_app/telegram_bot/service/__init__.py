@@ -15,6 +15,13 @@ bot = telebot.TeleBot(API_TOKEN)
 commands = []
 
 
+def escape_string(string):
+    escape_characters = ['/', '.', '_', '-']
+    for character in escape_characters:
+        string = string.replace(character, f"\\{character}")
+    return string
+
+
 def get_platform():
     return platform.node()
 

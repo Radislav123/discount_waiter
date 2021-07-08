@@ -14,9 +14,8 @@ SIZES_ON_SITE = "sizes_on_site"
 class ZaraItemInfoScraper:
     # информация, которая должна быть
     elements = {
-        # todo: сделать список xpath-ов
-        NAME: '//*[@class = "product-detail-info__name"]',
-        SIZES_ON_SITE: '//*[@class = "product-size-info__main-label"]'
+        NAME: ['//*[@class = "product-detail-info__name"]'],
+        SIZES_ON_SITE: ['//*[@class = "product-detail-size-info__main-label"]']
     }
 
     def __init__(self, item):
@@ -27,9 +26,10 @@ class ZaraItemInfoScraper:
 
     def find_elements_on_page(self):
         for attr_name in self.elements:
-            attr_found_elements = self.html_tree.xpath(self.elements[attr_name])
-            if len(attr_found_elements) != 0:
-                self.found_elements.update({attr_name: attr_found_elements})
+            for element_xpath in self.elements[attr_name]:
+                attr_found_elements = self.html_tree.xpath(element_xpath)
+                if len(attr_found_elements) != 0:
+                    self.found_elements.update({attr_name: attr_found_elements})
 
     def run(self):
         """Записывает в вещь информацию, которая есть на странице."""
@@ -46,7 +46,7 @@ class ZaraItemInfoScraper:
         return self.found_elements[NAME][0].text
 
     def get_sizes(self):
-        return [x.text for x in self.found_elements[SIZES_ON_SITE]]
+        return [x.text for x in self.found_elements[SIZES_ON_SITE]] if self.item.has_sizes else []
 
     @property
     def not_found_elements(self):
