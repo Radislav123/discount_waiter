@@ -119,7 +119,6 @@ def add_item_callback_handler_2(callback):
     )
 
 
-# todo: сделать статистику экономии денег на скидках (и другую статистику)
 @logger.log_telegram_callback
 def add_item_get_url_step(user_message, bot_message, site, item_type, has_sizes, previous_error_message_text = None):
     """Получение ссылки на вещь."""
@@ -264,8 +263,6 @@ def get_button_texts_for_sizes(item, remove_size_callback_prefix):
     return texts
 
 
-# todo: write remove_item_command
-# todo: write change_item_sizes_command
 @bot.callback_query_handler(func = is_callback_handler(ADD_ITEM_COMMAND, 3))
 @logger.log_telegram_callback
 @cancel_button_in_callback
