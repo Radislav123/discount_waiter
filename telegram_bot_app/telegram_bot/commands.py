@@ -30,4 +30,4 @@ REMOVE_ITEM_COMMAND = "remove_item"
 REMOVE_ITEM_COMMAND_DESCRIPTION = "убрать вещь из отслеживаемых"
 
 CHANGE_ITEM_SIZES_COMMAND = "change_item_sizes"
-CHANGE_ITEM_SIZES_COMMAND_DESCRIPTION = "изменить размеры вещи"
+CHANGE_ITEM_SIZES_COMMAND_DESCRIPTION = "изменить заказываемые размеры вещи"

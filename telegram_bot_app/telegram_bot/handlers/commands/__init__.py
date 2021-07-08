@@ -1,3 +1,4 @@
+from telegram_bot_app.telegram_bot.handlers.commands import change_item_sizes
 from telegram_bot_app.telegram_bot.handlers.commands import site_credentials
 from telegram_bot_app.telegram_bot.handlers.commands import tracked_sites
 from telegram_bot_app.telegram_bot.handlers.commands import tracked_items
@@ -10,5 +11,4 @@ from telegram_bot_app.telegram_bot.handlers.commands import start
 from telegram_bot_app.telegram_bot.handlers.commands import help
 
 
-# todo: write change_item_sizes_command
 # todo: сделать статистику экономии денег на скидках (и другую статистику)

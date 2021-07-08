@@ -32,3 +32,14 @@ def is_callback_handler(command, handler_number = 0):
             else False
 
     return wrapper
+
+
+def get_button_texts_for_sizes(item):
+    """Меняет кнопки с существующими размерами, на подразумевающие удаление размера"""
+
+    texts = {x: x for x in item.sizes_on_site}
+    if item.sizes:
+        for size in item.sizes:
+            del texts[size]
+            texts.update({f"убрать {size}": f"{REMOVE_SIZE_PREFIX}{size}"})
+    return texts

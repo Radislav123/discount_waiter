@@ -164,9 +164,11 @@ def add_item_get_url_step(user_message, bot_message, site, item_type, has_sizes,
                 )
 
                 bot.edit_message_text(
-                    ADD_ITEM__CHOOSE_SIZES_TEXT,
+                    escape_string(ADD_ITEM__CHOOSE_SIZES_TEMPLATE.format(url = item.url)),
                     bot_message.chat.id,
                     bot_message.id,
+                    parse_mode = MARKDOWN_PARSE_MODE,
+                    disable_web_page_preview = True,
                     reply_markup = reply_markup
                 )
             else:
@@ -254,15 +256,6 @@ def add_item_get_url_step(user_message, bot_message, site, item_type, has_sizes,
         bot.delete_message(user_message.chat.id, user_message.id)
 
 
-def get_button_texts_for_sizes(item, remove_size_callback_prefix):
-    texts = {x: x for x in item.sizes_on_site}
-    if item.sizes:
-        for size in item.sizes:
-            del texts[size]
-            texts.update({f"убрать {size}": f"{remove_size_callback_prefix}{size}"})
-    return texts
-
-
 @bot.callback_query_handler(func = is_callback_handler(ADD_ITEM_COMMAND, 3))
 @logger.log_telegram_callback
 @cancel_button_in_callback
@@ -272,23 +265,28 @@ def add_item_callback_handler_3(callback):
     callback_data = get_callback_data(callback)
     callback_extras = get_callback_extras(callback)
     item = models.Item.objects.get(id = int(callback_extras))
-    remove_size_callback_prefix = "remove-"
 
     if callback_data == FINISH_BUTTON_TEXT_EN:
         if len(item.sizes_to_order) == 1:
-            command_finish_text = ADD_ITEM__ONE_SIZE_TEMPLATE.format(
-                item_name = item.name,
-                url = item.url,
-                sizes_to_order = item.sizes_to_order[0]
+            command_finish_text = escape_string(
+                ADD_ITEM__ONE_SIZE_TEMPLATE.format(
+                    item_name = item.name,
+                    url = item.url,
+                    sizes_to_order = item.sizes_to_order[0]
+                )
             )
         elif len(item.sizes_to_order) > 1:
-            command_finish_text = ADD_ITEM__MANY_SIZES_TEMPLATE.format(
-                item_name = item.name,
-                url = item.url,
-                sizes_to_order = ", ".join(item.sizes_to_order)
+            command_finish_text = escape_string(
+                ADD_ITEM__MANY_SIZES_TEMPLATE.format(
+                    item_name = item.name,
+                    url = item.url,
+                    sizes_to_order = ", ".join(item.sizes_to_order)
+                )
             )
         else:
-            command_finish_text = ADD_ITEM__NO_SIZES_TEMPLATE.format(item_name = item.name, url = item.url)
+            command_finish_text = escape_string(
+                ADD_ITEM__NO_SIZES_TEMPLATE.format(item_name = item.name, url = item.url)
+            )
 
         bot.edit_message_text(
             escape_string(command_finish_text),
@@ -298,8 +296,8 @@ def add_item_callback_handler_3(callback):
             disable_web_page_preview = True
         )
     else:
-        if callback_data.startswith(remove_size_callback_prefix):
-            item.sizes.remove(callback_data.removeprefix(remove_size_callback_prefix))
+        if callback_data.startswith(REMOVE_SIZE_PREFIX):
+            item.sizes.remove(callback_data.removeprefix(REMOVE_SIZE_PREFIX))
             item.save()
             logger.log_inside_telegram_command(
                 logging.DEBUG,
@@ -319,7 +317,7 @@ def add_item_callback_handler_3(callback):
             )
 
         next_handler_number = get_callback_handler_number(callback)
-        buttons_data = get_button_texts_for_sizes(item, remove_size_callback_prefix)
+        buttons_data = get_button_texts_for_sizes(item)
         rows = get_inline_button_rows(
             ADD_ITEM_COMMAND,
             buttons_data,
@@ -336,8 +334,10 @@ def add_item_callback_handler_3(callback):
         )
 
         bot.edit_message_text(
-            ADD_ITEM__CHOOSE_SIZES_TEXT,
+            escape_string(ADD_ITEM__CHOOSE_SIZES_TEMPLATE.format(url = item.url)),
             callback.message.chat.id,
             callback.message.id,
+            parse_mode = MARKDOWN_PARSE_MODE,
+            disable_web_page_preview = True,
             reply_markup = reply_markup
         )

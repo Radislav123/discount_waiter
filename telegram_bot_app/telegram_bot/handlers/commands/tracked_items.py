@@ -53,7 +53,7 @@ def tracked_items_callback_handler(callback):
     )
 
     bot.edit_message_text(
-        TRACKED_ITEMS__CHOOSE_ITEM_TYPE,
+        TRACKED_ITEMS__CHOOSE_ITEM_TYPE_TEXT,
         callback.message.chat.id,
         callback.message.id,
         reply_markup = reply_markup,

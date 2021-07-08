@@ -54,7 +54,7 @@ def remove_item_callback_handler(callback):
     )
 
     bot.edit_message_text(
-        REMOVE_ITEM__CHOOSE_ITEM_TYPE,
+        REMOVE_ITEM__CHOOSE_ITEM_TYPE_TEXT,
         callback.message.chat.id,
         callback.message.id,
         reply_markup = reply_markup,
