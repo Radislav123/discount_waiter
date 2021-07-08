@@ -1,10 +1,9 @@
 # noinspection PyUnresolvedReferences
 from telegram_bot_app.telegram_bot.handlers import commands
 from telegram_bot_app.telegram_bot.service import *
-from service_app.logger import get_logger
 
-
-logger = get_logger(__name__)
+# если раскомментировать эту строку, то логи будут появляться дважды
+# logger = get_logger(__name__)
 
 
 @bot.message_handler(content_types = ["text"])
