@@ -3,7 +3,10 @@ from telegram_bot_app.telegram_bot.commands import *
 
 MARKDOWN_PARSE_MODE = "MarkdownV2"
 
-REMOVE_SIZE_PREFIX = "remove-"
+BUTTON_DATA_PREFIX_REMOVE = "remove-"
+
+TRUE_FALSE_BUTTONS_DATA = {"Да": True, "Нет": False}
+ALL_ITEM_TYPES_BUTTONS_DATA = {"всех типов": "all"}
 
 CANCEL_BUTTON_TEXT_RUS = "Отмена"
 CANCEL_BUTTON_TEXT_EN = "Cancel"
@@ -20,6 +23,15 @@ HAVE_NO_SITES_DEFAULT_TEXT = f"На данный момент у Вас нет �
 CHOOSE_SITE_DEFAULT_TEXT = "Выберите сайт из предложенных ниже"
 # нет точки в конце
 CHOOSE_ITEM_TYPE_DEFAULT_TEXT = "Выберите тип вещи из предложенных ниже"
+
+ONE_ITEM_DEFAULT_TEMPLATE = "Ваша единственная вещь типа {item_type_name}:"
+MANY_ITEMS_DEFAULT_TEMPLATE = "Ваши вещи типа {item_type_name}:"
+NO_ITEMS_DEFAULT_TEMPLATE = "У Вас нет ни одной вещи типа {item_type_name}."
+ONE_ITEM_ALL_TYPES_DEFAULT_TEXT = "Ваша единственная вещь:"
+MANY_ITEMS_ALL_TYPES_DEFAULT_TEXT = "Ваши вещи:"
+NO_ITEMS_ALL_TYPES_DEFAULT_TEXT = "У Вас нет ни одной вещи."
+CHOOSE_SIZES_DEFAULT_TEMPLATE = f"Выберите размер или размеры из предложенных ниже," \
+                                           f" они взяты со [страницы вещи]({{url}})."
 
 BOT_DESCRIPTION = f"Бот для отслеживания скидок.\n" \
                   f"Для просмотра списка команд введите '/' или '/{COMMAND_LIST_COMMAND}'."
@@ -66,61 +78,65 @@ ADD_ITEM__INPUT_URL_TEXT = f"Введите ссылку на вещь.\n" \
                            f"Размеры можно изменить - /{CHANGE_ITEM_SIZES_COMMAND}," \
                            f" а вещь можно убрать из отслеживаемых - /{REMOVE_ITEM_COMMAND}."
 ADD_ITEM__HAS_ITEM_SIZES_TEXT = "Есть ли у выбранной Вами вещи размеры?"
+ADD_ITEM__HAS_ITEM_COLORS_TEXT = "Есть ли у выбранной Вами вещи различные цвета (более одного на выбор)?"
 ADD_ITEM__INCORRECT_URL_TEXT = "Введенная ссылка некорректна, введите корректную ссылку на вещь."
 ADD_ITEM__INCORRECT_DOMAIN_TEMPLATE = "Введенная [ссылка]({url})" \
                                       " не принадлежит выбранному сайту [{site_name}]({site_url}).\n" \
                                       "Ведите корректную ссылку на вещь."
 ADD_ITEM__NOT_FOUND_INFORMATION_TEMPLATE = "Бот не нашел необходимой информации на [странице вещи]({url}).\n" \
                                            "Вы могли ввести ссылку с [нужного сайта]({site_url})," \
-                                           " но с вещью другого типа, или вообще без какой-либо вещи.\n" \
+                                           " но с вещью другого типа, вообще без какой-либо вещи" \
+                                           " или указать что вещь имеет различные цвета или размеры," \
+                                           " но их нет на самом деле нет на сайте.\n" \
                                            "Ведите корректную ссылку на вещь."
-ADD_ITEM__CHOOSE_SIZES_TEMPLATE = f"Выберите размер или размеры из предложенных ниже," \
-                                  f" они взяты со [страницы вещи]({{url}}).\n" \
-                                  f"Чтобы убрать вещь из отслеживаемых," \
-                                  f" воспользуйтесь командой /{REMOVE_ITEM_COMMAND}\n." \
-                                  f"Чтобы посмотреть Ваши отслеживаемые вещи," \
-                                  f" воспользуйтесь командой /{TRACKED_ITEMS_COMMAND}.\n" \
-                                  f"Чтобы изменить размеры отслеживаемой вещи" \
-                                  f" воспользуйтесь командой /{CHANGE_ITEM_SIZES_COMMAND}"
-ADD_ITEM__ONE_SIZE_TEMPLATE = "Вещь - [{item_name}]({url}) - добавлена для отслеживания" \
-                              " с размером {sizes_to_order}."
-ADD_ITEM__MANY_SIZES_TEMPLATE = "Вещь - [{item_name}]({url}) - добавлена для отслеживания" \
-                                " с размерами: {sizes_to_order}."
-ADD_ITEM__NO_SIZES_TEMPLATE = "Вещь - [{item_name}]({url}) - добавлена для отслеживания без размеров."
+ADD_ITEM__CHOOSE_SIZES_TEMPLATE = "Выберите размер или размеры из предложенных ниже," \
+                                  " они взяты со [страницы вещи]({url})."
+ADD_ITEM__CHOOSE_COLOR_TEMPLATE = "Выберите цвет из предложенных ниже, они взяты со [страницы вещи]({url})."
+ADD_ITEM__NO_SIZES_NO_COLOR_TEMPLATE = "Вещь - [{item_name}]({url}) - добавлена для отслеживания без размеров и цвета."
+ADD_ITEM__ONE_SIZE_NO_COLOR_TEMPLATE = "Вещь - [{item_name}]({url}) - добавлена для отслеживания" \
+                                       " с размером {sizes_to_order} без цвета."
+ADD_ITEM__MANY_SIZES_NO_COLOR_TEMPLATE = "Вещь - [{item_name}]({url}) - добавлена для отслеживания" \
+                                         " с размерами: {sizes_to_order} - без цвета."
+ADD_ITEM__NO_SIZES_WITH_COLOR_TEMPLATE = "Вещь - [{item_name}]({url}) - добавлена для отслеживания без размеров" \
+                                         " с цветом {color}."
+ADD_ITEM__ONE_SIZE_WITH_COLOR_TEMPLATE = "Вещь - [{item_name}]({url}) - добавлена для отслеживания" \
+                                         " с размером {sizes_to_order} с цветом {color}."
+ADD_ITEM__MANY_SIZES_WITH_COLOR_TEMPLATE = "Вещь - [{item_name}]({url}) - добавлена для отслеживания" \
+                                           " с размерами: {sizes_to_order} - с цветом {color}."
 
 TRACKED_ITEMS__CHOOSE_SITE_TEXT = f"{CHOOSE_SITE_DEFAULT_TEXT}, вещи с которого хотите увидеть."
 TRACKED_ITEMS__HAVE_NO_SITES_TEXT = HAVE_NO_SITES_DEFAULT_TEXT
 TRACKED_ITEMS__CHOOSE_ITEM_TYPE_TEXT = "Выберите, вещи какого типа из предложенных ниже хотите увидеть."
-TRACKED_ITEMS__ONE_ITEM_TEMPLATE = "Ваша единственная вещь типа {item_type_name}:"
-TRACKED_ITEMS__MANY_ITEMS_TEMPLATE = "Ваши вещи типа {item_type_name}:"
-TRACKED_ITEMS__NO_ITEMS_TEMPLATE = "У Вас нет ни одной вещи типа {item_type_name}."
-TRACKED_ITEMS__ONE_ITEM_ALL_TYPES_TEXT = "Ваша единственная вещь:"
-TRACKED_ITEMS__MANY_ITEMS_ALL_TYPES_TEXT = "Ваши вещи:"
-TRACKED_ITEMS__NO_ITEMS_ALL_TYPES_TEXT = "У Вас нет ни одной вещи."
+TRACKED_ITEMS__ONE_ITEM_TEMPLATE = ONE_ITEM_DEFAULT_TEMPLATE
+TRACKED_ITEMS__MANY_ITEMS_TEMPLATE = MANY_ITEMS_DEFAULT_TEMPLATE
+TRACKED_ITEMS__NO_ITEMS_TEMPLATE = NO_ITEMS_DEFAULT_TEMPLATE
+TRACKED_ITEMS__ONE_ITEM_ALL_TYPES_TEXT = ONE_ITEM_ALL_TYPES_DEFAULT_TEXT
+TRACKED_ITEMS__MANY_ITEMS_ALL_TYPES_TEXT = MANY_ITEMS_ALL_TYPES_DEFAULT_TEXT
+TRACKED_ITEMS__NO_ITEMS_ALL_TYPES_TEXT = NO_ITEMS_ALL_TYPES_DEFAULT_TEXT
 
 REMOVE_ITEM__CHOOSE_SITE_TEXT = f"{CHOOSE_SITE_DEFAULT_TEXT}, вещь с которого хотите убрать из отслеживаемых."
 REMOVE_ITEM__HAVE_NO_SITES_TEXT = HAVE_NO_SITES_DEFAULT_TEXT
 REMOVE_ITEM__CHOOSE_ITEM_TYPE_TEXT = "Выберите, вещь какого типа из предложенных ниже" \
                                      " Вы хотите убрать из отслеживаемых."
-REMOVE_ITEM__ONE_ITEM_TEMPLATE = "Ваша единственная вещь типа {item_type_name}:"
-REMOVE_ITEM__MANY_ITEMS_TEMPLATE = "Ваши вещи типа {item_type_name}:"
-REMOVE_ITEM__NO_ITEMS_TEMPLATE = "У Вас нет ни одной вещи типа {item_type_name}."
-REMOVE_ITEM__ONE_ITEM_ALL_TYPES_TEXT = "Ваша единственная вещь:"
-REMOVE_ITEM__MANY_ITEMS_ALL_TYPES_TEXT = "Ваши вещи:"
-REMOVE_ITEM__NO_ITEMS_ALL_TYPES_TEXT = "У Вас нет ни одной вещи."
+REMOVE_ITEM__ONE_ITEM_TEMPLATE = ONE_ITEM_DEFAULT_TEMPLATE
+REMOVE_ITEM__MANY_ITEMS_TEMPLATE = MANY_ITEMS_DEFAULT_TEMPLATE
+REMOVE_ITEM__NO_ITEMS_TEMPLATE = NO_ITEMS_DEFAULT_TEMPLATE
+REMOVE_ITEM__ONE_ITEM_ALL_TYPES_TEXT = ONE_ITEM_ALL_TYPES_DEFAULT_TEXT
+REMOVE_ITEM__MANY_ITEMS_ALL_TYPES_TEXT = MANY_ITEMS_ALL_TYPES_DEFAULT_TEXT
+REMOVE_ITEM__NO_ITEMS_ALL_TYPES_TEXT = NO_ITEMS_ALL_TYPES_DEFAULT_TEXT
 REMOVE_ITEM__SUCCESS_FINISH_TEMPLATE = "Вещь - [{item_name}]({url}) - убрана из отслеживаемых."
 
 CHANGE_ITEM_SIZES__CHOOSE_SITE_TEXT = f"{CHOOSE_SITE_DEFAULT_TEXT}," \
                                       f" заказываемые размеры вещи с которого хотите изменить."
 CHANGE_ITEM_SIZES__HAVE_NO_SITES_TEXT = HAVE_NO_SITES_DEFAULT_TEXT
-CHANGE_ITEM_SIZES__CHOOSE_ITEM_TYPE_TEXT = "Выберите, вещи какого типа из предложенных ниже" \
+CHANGE_ITEM_SIZES__CHOOSE_ITEM_TYPE_TEXT = "Выберите, у вещи какого типа из предложенных ниже" \
                                            " Вы хотите изменить заказываемые размеры."
-CHANGE_ITEM_SIZES__ONE_ITEM_TEMPLATE = "Ваша единственная вещь типа {item_type_name}:"
-CHANGE_ITEM_SIZES__MANY_ITEMS_TEMPLATE = "Ваши вещи типа {item_type_name}:"
-CHANGE_ITEM_SIZES__NO_ITEMS_TEMPLATE = "У Вас нет ни одной вещи типа {item_type_name}."
-CHANGE_ITEM_SIZES__ONE_ITEM_ALL_TYPES_TEXT = "Ваша единственная вещь:"
-CHANGE_ITEM_SIZES__MANY_ITEMS_ALL_TYPES_TEXT = "Ваши вещи:"
-CHANGE_ITEM_SIZES__NO_ITEMS_ALL_TYPES_TEXT = "У Вас нет ни одной вещи."
+CHANGE_ITEM_SIZES__ONE_ITEM_TEMPLATE = ONE_ITEM_DEFAULT_TEMPLATE
+CHANGE_ITEM_SIZES__MANY_ITEMS_TEMPLATE = MANY_ITEMS_DEFAULT_TEMPLATE
+CHANGE_ITEM_SIZES__NO_ITEMS_TEMPLATE = NO_ITEMS_DEFAULT_TEMPLATE
+CHANGE_ITEM_SIZES__ONE_ITEM_ALL_TYPES_TEXT = ONE_ITEM_ALL_TYPES_DEFAULT_TEXT
+CHANGE_ITEM_SIZES__MANY_ITEMS_ALL_TYPES_TEXT = MANY_ITEMS_ALL_TYPES_DEFAULT_TEXT
+CHANGE_ITEM_SIZES__NO_ITEMS_ALL_TYPES_TEXT = NO_ITEMS_ALL_TYPES_DEFAULT_TEXT
 CHANGE_ITEM_SIZES__CHOOSE_SIZES_TEMPLATE = f"Выберите размер или размеры из предложенных ниже," \
                                            f" они взяты со [страницы вещи]({{url}})."
 CHANGE_ITEM_SIZES__ONE_SIZE_TEMPLATE = "Вещь - [{item_name}]({url}) - добавлена для отслеживания" \
@@ -128,6 +144,22 @@ CHANGE_ITEM_SIZES__ONE_SIZE_TEMPLATE = "Вещь - [{item_name}]({url}) - доб
 CHANGE_ITEM_SIZES__MANY_SIZES_TEMPLATE = "Вещь - [{item_name}]({url}) - добавлена для отслеживания" \
                                          " с размерами: {sizes_to_order}."
 CHANGE_ITEM_SIZES__NO_SIZES_TEMPLATE = "Вещь - [{item_name}]({url}) - добавлена для отслеживания без размеров."
+
+CHANGE_ITEM_COLOR__CHOOSE_SITE_TEXT = f"{CHOOSE_SITE_DEFAULT_TEXT}," \
+                                      f" заказываемый цвет вещи с которого хотите изменить."
+CHANGE_ITEM_COLOR__HAVE_NO_SITES_TEXT = HAVE_NO_SITES_DEFAULT_TEXT
+CHANGE_ITEM_COLOR__CHOOSE_ITEM_TYPE_TEXT = "Выберите, у вещи какого типа из предложенных ниже" \
+                                           " Вы хотите изменить заказываемый цвет."
+CHANGE_ITEM_COLOR__ONE_ITEM_TEMPLATE = ONE_ITEM_DEFAULT_TEMPLATE
+CHANGE_ITEM_COLOR__MANY_ITEMS_TEMPLATE = MANY_ITEMS_DEFAULT_TEMPLATE
+CHANGE_ITEM_COLOR__NO_ITEMS_TEMPLATE = NO_ITEMS_DEFAULT_TEMPLATE
+CHANGE_ITEM_COLOR__ONE_ITEM_ALL_TYPES_TEXT = ONE_ITEM_ALL_TYPES_DEFAULT_TEXT
+CHANGE_ITEM_COLOR__MANY_ITEMS_ALL_TYPES_TEXT = MANY_ITEMS_ALL_TYPES_DEFAULT_TEXT
+CHANGE_ITEM_COLOR__NO_ITEMS_ALL_TYPES_TEXT = NO_ITEMS_ALL_TYPES_DEFAULT_TEXT
+CHANGE_ITEM_COLOR__CHOOSE_COLOR_TEMPLATE = f"Выберите цвет из предложенных ниже," \
+                                           f" они взяты со [страницы вещи]({{url}})."
+CHANGE_ITEM_COLOR__COLOR_SET_TEMPLATE = "Вещь - [{item_name}]({url}) - сохранена с заказываемым цветом {color}."
+CHANGE_ITEM_COLOR__COLOR_UNSET_TEMPLATE = "Вещь - [{item_name}]({url}) - сохранена без заказываемого цвета."
 
 # первый аргумент - команда, которая связана с обратным вызовом
 # второй аргумент - номер хендлера (или шага)

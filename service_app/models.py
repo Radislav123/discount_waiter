@@ -84,9 +84,12 @@ class Item(models.Model):
     # ссылка на страницу вещи на сайте
     url = models.URLField(max_length = 400)
     name = models.CharField(max_length = 200)
+    has_sizes = models.BooleanField()
     sizes = ArrayField(base_field = models.CharField(max_length = 20), blank = True)
     sizes_on_site = ArrayField(base_field = models.CharField(max_length = 20), blank = True)
-    has_sizes = models.BooleanField()
+    has_colors = models.BooleanField()
+    color = models.CharField(max_length = 20, blank = True)
+    colors_on_site = ArrayField(base_field = models.CharField(max_length = 20), blank = True)
 
     @property
     def sizes_to_order(self):

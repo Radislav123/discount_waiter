@@ -99,6 +99,48 @@ def get_inline_button_rows(
     return rows
 
 
+def get_inline_button_rows_with_cancel(
+        command,
+        buttons_data,
+        forbidden_button_texts = (),
+        buttons_in_row = 3,
+        handler_number = 0,
+        extras = None,
+        linked = False
+):
+    rows = get_inline_button_rows(
+        command,
+        buttons_data,
+        forbidden_button_texts,
+        buttons_in_row,
+        handler_number,
+        extras,
+        linked
+    )
+    return [*rows, get_inline_cancel_button_row(command, handler_number = handler_number, extras = extras)]
+
+
+def get_inline_button_rows_with_finish(
+        command,
+        buttons_data,
+        forbidden_button_texts = (),
+        buttons_in_row = 3,
+        handler_number = 0,
+        extras = None,
+        linked = False
+):
+    rows = get_inline_button_rows(
+        command,
+        buttons_data,
+        forbidden_button_texts,
+        buttons_in_row,
+        handler_number,
+        extras,
+        linked
+    )
+    return [*rows, get_inline_finish_button_row(command, handler_number = handler_number, extras = extras)]
+
+
 def get_inline_special_button_row(button_text, callback_data_template, command, handler_number = 0, extras = None):
     return [
         telebot.types.InlineKeyboardButton(

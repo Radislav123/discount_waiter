@@ -7,7 +7,7 @@ logger = get_logger(__name__)
 @bot.message_handler(commands = [CHANGE_ITEM_SIZES_COMMAND])
 @logger.log_telegram_command(CHANGE_ITEM_SIZES_COMMAND)
 def change_item_sizes_command(message):
-    """Позволяет изменить заказываемые размеры вещи.."""
+    """Позволяет изменить заказываемые размеры вещи."""
 
     # выбор сайта, вещь с которого нужно убрать из отслеживаемых
     buttons_data = get_discount_hunter_tracked_sites_names(message.chat.id)
@@ -42,7 +42,7 @@ def change_item_sizes_callback_handler(callback):
         *rows,
         *get_inline_button_rows(
             CHANGE_ITEM_SIZES_COMMAND,
-            {"всех типов": "all"},
+            ALL_ITEM_TYPES_BUTTONS_DATA,
             handler_number = next_handler_number,
             extras = buttons_extras
         ),
@@ -121,7 +121,7 @@ def change_item_sizes_callback_handler_2(callback):
     buttons_extras = item.id
     rows = get_inline_button_rows(
         CHANGE_ITEM_SIZES_COMMAND,
-        get_button_texts_for_sizes(item),
+        get_buttons_data_for_sizes(item),
         handler_number = next_handler_number,
         extras = buttons_extras
     )
@@ -144,9 +144,9 @@ def change_item_sizes_callback_handler_2(callback):
     )
 
 
+# todo: добавить проверку item.has_sizes
 @bot.callback_query_handler(func = is_callback_handler(CHANGE_ITEM_SIZES_COMMAND, 3))
 @logger.log_telegram_callback
-@cancel_button_in_callback
 def change_item_sizes_callback_handler_3(callback):
     """Выбор размеров вещи."""
 
@@ -177,15 +177,15 @@ def change_item_sizes_callback_handler_3(callback):
             )
 
         bot.edit_message_text(
-            escape_string(command_finish_text),
+            command_finish_text,
             callback.message.chat.id,
             callback.message.id,
             parse_mode = MARKDOWN_PARSE_MODE,
             disable_web_page_preview = True
         )
     else:
-        if callback_data.startswith(REMOVE_SIZE_PREFIX):
-            item.sizes.remove(callback_data.removeprefix(REMOVE_SIZE_PREFIX))
+        if callback_data.startswith(BUTTON_DATA_PREFIX_REMOVE):
+            item.sizes.remove(callback_data.removeprefix(BUTTON_DATA_PREFIX_REMOVE))
             item.save()
             logger.log_inside_telegram_command(
                 logging.DEBUG,
@@ -205,7 +205,7 @@ def change_item_sizes_callback_handler_3(callback):
             )
 
         next_handler_number = get_callback_handler_number(callback)
-        buttons_data = get_button_texts_for_sizes(item)
+        buttons_data = get_buttons_data_for_sizes(item)
         rows = get_inline_button_rows(
             CHANGE_ITEM_SIZES_COMMAND,
             buttons_data,

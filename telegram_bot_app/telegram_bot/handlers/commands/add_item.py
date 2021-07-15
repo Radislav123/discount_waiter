@@ -15,11 +15,11 @@ def add_item_command(message):
 
     # выбор сайта, на котором найдена вещь
     buttons_data = get_discount_hunter_tracked_sites_names(message.chat.id)
-    rows = get_inline_button_rows(ADD_ITEM_COMMAND, buttons_data)
+    rows = get_inline_button_rows_with_cancel(ADD_ITEM_COMMAND, buttons_data)
     # в обратный вызов передается название сайта
-    reply_markup = get_inline_keyboard_markup(*rows, get_inline_cancel_button_row(ADD_ITEM_COMMAND))
+    reply_markup = get_inline_keyboard_markup(*rows)
 
-    if len(rows) > 0:
+    if len(rows) > 1:
         bot.send_message(message.chat.id, ADD_ITEM__CHOOSE_SITE_TEXT, reply_markup = reply_markup)
     else:
         bot.send_message(message.chat.id, ADD_ITEM__HAVE_NO_SITES_TEXT)
@@ -35,17 +35,14 @@ def add_item_callback_handler(callback):
     buttons_extras = models.Site.objects.get(name = get_callback_data(callback)).id
     # выбор типа вещи
     next_handler_number = 1
-    rows = get_inline_button_rows(
+    rows = get_inline_button_rows_with_cancel(
         ADD_ITEM_COMMAND,
         models.ItemType.rus_to_en,
         buttons_in_row = 2,
         handler_number = next_handler_number,
         extras = buttons_extras
     )
-    reply_markup = get_inline_keyboard_markup(
-        *rows,
-        get_inline_cancel_button_row(ADD_ITEM_COMMAND, handler_number = next_handler_number, extras = buttons_extras)
-    )
+    reply_markup = get_inline_keyboard_markup(*rows)
 
     bot.edit_message_text(
         ADD_ITEM__CHOOSE_ITEM_TYPE_TEXT,
@@ -67,23 +64,15 @@ def add_item_callback_handler_1(callback):
         models.ItemType.objects.get(name_en = get_callback_data(callback)).id
     ]
     next_handler_number = 2
-    buttons_data = {"Да": True, "Нет": False}
-    rows = get_inline_button_rows(
+    rows = get_inline_button_rows_with_cancel(
         ADD_ITEM_COMMAND,
-        buttons_data,
+        TRUE_FALSE_BUTTONS_DATA,
         handler_number = next_handler_number,
         extras = buttons_extras
     )
 
     # спрашивается, есть ли у вещи размеры
-    reply_markup = get_inline_keyboard_markup(
-        *rows,
-        get_inline_cancel_button_row(
-            ADD_ITEM_COMMAND,
-            handler_number = next_handler_number,
-            extras = buttons_extras
-        )
-    )
+    reply_markup = get_inline_keyboard_markup(*rows)
 
     bot.edit_message_text(
         ADD_ITEM__HAS_ITEM_SIZES_TEXT,
@@ -99,7 +88,34 @@ def add_item_callback_handler_1(callback):
 def add_item_callback_handler_2(callback):
     """Получение ответа на вопрос - имеет ли вещь размеры."""
 
-    site_id, item_type_id = get_callback_extras(callback)
+    # [id Site, id ItemType, bool имеет ли вещь размер]
+    buttons_extras = [*get_callback_extras(callback), strtobool(get_callback_data(callback))]
+    next_handler_number = 3
+    rows = get_inline_button_rows_with_cancel(
+        ADD_ITEM_COMMAND,
+        TRUE_FALSE_BUTTONS_DATA,
+        handler_number = next_handler_number,
+        extras = buttons_extras
+    )
+
+    # спрашивается, есть ли у вещи цвет
+    reply_markup = get_inline_keyboard_markup(*rows)
+
+    bot.edit_message_text(
+        ADD_ITEM__HAS_ITEM_COLORS_TEXT,
+        callback.message.chat.id,
+        callback.message.id,
+        reply_markup = reply_markup
+    )
+
+
+@bot.callback_query_handler(func = is_callback_handler(ADD_ITEM_COMMAND, 3))
+@logger.log_telegram_callback
+@cancel_button_in_callback
+def add_item_callback_handler_3(callback):
+    """Получение ответа на вопрос - имеет ли вещь цвет."""
+
+    site_id, item_type_id, has_colors = get_callback_extras(callback)
     # запрос на ввод ссылки на элемент одежды
     bot.edit_message_text(
         ADD_ITEM__INPUT_URL_TEXT,
@@ -115,15 +131,61 @@ def add_item_callback_handler_2(callback):
         callback.message,
         models.Site.objects.get(id = site_id),
         models.ItemType.objects.get(id = item_type_id),
+        has_colors,
         strtobool(get_callback_data(callback))
     )
 
 
+def ask_sizes_or_color(bot_message, item, sizes_handler_number, color_handler_number, sizes_asked = False):
+    # в extras передается id инстанса Item
+    buttons_extras = item.id
+    if item.has_sizes and not sizes_asked:
+        # выбор размеров
+        rows = get_inline_button_rows_with_finish(
+            ADD_ITEM_COMMAND,
+            item.sizes_on_site,
+            handler_number = sizes_handler_number,
+            extras = buttons_extras
+        )
+        reply_markup = get_inline_keyboard_markup(*rows)
+        new_message_text = escape_string(ADD_ITEM__CHOOSE_SIZES_TEMPLATE.format(url = item.url))
+    elif item.has_colors:
+        # выбор размеров
+        rows = get_inline_button_rows_with_finish(
+            ADD_ITEM_COMMAND,
+            item.colors_on_site,
+            handler_number = color_handler_number,
+            extras = buttons_extras
+        )
+        reply_markup = get_inline_keyboard_markup(*rows)
+        new_message_text = escape_string(ADD_ITEM__CHOOSE_COLOR_TEMPLATE.format(url = item.url))
+    else:
+        reply_markup = get_inline_keyboard_markup(*[])
+        new_message_text = escape_string(ADD_ITEM__NO_SIZES_NO_COLOR_TEMPLATE.format(url = item.url))
+
+    bot.edit_message_text(
+        new_message_text,
+        bot_message.chat.id,
+        bot_message.id,
+        parse_mode = MARKDOWN_PARSE_MODE,
+        disable_web_page_preview = True,
+        reply_markup = reply_markup
+    )
+
+
 @logger.log_telegram_callback
-def add_item_get_url_step(user_message, bot_message, site, item_type, has_sizes, previous_error_message_text = None):
+def add_item_get_url_step(
+        user_message,
+        bot_message,
+        site,
+        item_type,
+        has_sizes,
+        has_colors,
+        previous_error_message_text = None
+):
     """Получение ссылки на вещь."""
 
-    next_handler_number = 3
+    next_handler_number = 4
     try:
         # todo: добавить проверку на то, что такая вещь уже есть, если есть, предложить обновить ее данные
         item = models.Item(
@@ -131,8 +193,10 @@ def add_item_get_url_step(user_message, bot_message, site, item_type, has_sizes,
             site = site,
             type = item_type,
             url = user_message.text,
+            has_sizes = has_sizes,
             sizes = [],
-            has_sizes = has_sizes
+            has_colors = has_colors,
+            color = ""
         )
         item.validate_url()
         # поля name и sizes_on_site берутся с сайта
@@ -144,41 +208,7 @@ def add_item_get_url_step(user_message, bot_message, site, item_type, has_sizes,
             scraper.run()
             item.save()
 
-            if item.has_sizes:
-                # в extras передается id инстанса Item
-                buttons_extras = item.id
-                # выбор размеров
-                rows = get_inline_button_rows(
-                    ADD_ITEM_COMMAND,
-                    item.sizes_on_site,
-                    handler_number = next_handler_number,
-                    extras = buttons_extras
-                )
-                reply_markup = get_inline_keyboard_markup(
-                    *rows,
-                    get_inline_finish_button_row(
-                        ADD_ITEM_COMMAND,
-                        handler_number = next_handler_number,
-                        extras = buttons_extras
-                    )
-                )
-
-                bot.edit_message_text(
-                    escape_string(ADD_ITEM__CHOOSE_SIZES_TEMPLATE.format(url = item.url)),
-                    bot_message.chat.id,
-                    bot_message.id,
-                    parse_mode = MARKDOWN_PARSE_MODE,
-                    disable_web_page_preview = True,
-                    reply_markup = reply_markup
-                )
-            else:
-                bot.edit_message_text(
-                    escape_string(ADD_ITEM__NO_SIZES_TEMPLATE.format(item_name = item.name, url = item.url)),
-                    bot_message.chat.id,
-                    bot_message.id,
-                    parse_mode = MARKDOWN_PARSE_MODE,
-                    disable_web_page_preview = True
-                )
+            ask_sizes_or_color(bot_message, item, next_handler_number, next_handler_number + 1)
         else:
             new_bot_message_text = ADD_ITEM__NOT_FOUND_INFORMATION_TEMPLATE.format(
                 url = item.url,
@@ -256,48 +286,58 @@ def add_item_get_url_step(user_message, bot_message, site, item_type, has_sizes,
         bot.delete_message(user_message.chat.id, user_message.id)
 
 
-@bot.callback_query_handler(func = is_callback_handler(ADD_ITEM_COMMAND, 3))
+def get_command_finish_text_without_color(item):
+    if len(item.sizes_to_order) == 1:
+        command_finish_text = escape_string(
+            ADD_ITEM__ONE_SIZE_NO_COLOR_TEMPLATE.format(
+                item_name = item.name,
+                url = item.url,
+                sizes_to_order = item.sizes_to_order[0]
+            )
+        )
+    elif len(item.sizes_to_order) > 1:
+        command_finish_text = escape_string(
+            ADD_ITEM__MANY_SIZES_NO_COLOR_TEMPLATE.format(
+                item_name = item.name,
+                url = item.url,
+                sizes_to_order = ", ".join(item.sizes_to_order)
+            )
+        )
+    else:
+        command_finish_text = escape_string(
+            ADD_ITEM__NO_SIZES_NO_COLOR_TEMPLATE.format(item_name = item.name, url = item.url)
+        )
+
+    return command_finish_text
+
+
+@bot.callback_query_handler(func = is_callback_handler(ADD_ITEM_COMMAND, 4))
 @logger.log_telegram_callback
 @cancel_button_in_callback
-def add_item_callback_handler_3(callback):
+def add_item_callback_handler_4(callback):
     """Выбор размеров вещи."""
 
     callback_data = get_callback_data(callback)
     callback_extras = get_callback_extras(callback)
     item = models.Item.objects.get(id = int(callback_extras))
+    next_handler_number = get_callback_handler_number(callback)
 
     if callback_data == FINISH_BUTTON_TEXT_EN:
-        if len(item.sizes_to_order) == 1:
-            command_finish_text = escape_string(
-                ADD_ITEM__ONE_SIZE_TEMPLATE.format(
-                    item_name = item.name,
-                    url = item.url,
-                    sizes_to_order = item.sizes_to_order[0]
-                )
-            )
-        elif len(item.sizes_to_order) > 1:
-            command_finish_text = escape_string(
-                ADD_ITEM__MANY_SIZES_TEMPLATE.format(
-                    item_name = item.name,
-                    url = item.url,
-                    sizes_to_order = ", ".join(item.sizes_to_order)
-                )
-            )
+        if item.has_colors:
+            ask_sizes_or_color(callback.message, item, next_handler_number + 1, next_handler_number + 1, True)
         else:
-            command_finish_text = escape_string(
-                ADD_ITEM__NO_SIZES_TEMPLATE.format(item_name = item.name, url = item.url)
-            )
+            command_finish_text = get_command_finish_text_without_color(item)
 
-        bot.edit_message_text(
-            escape_string(command_finish_text),
-            callback.message.chat.id,
-            callback.message.id,
-            parse_mode = MARKDOWN_PARSE_MODE,
-            disable_web_page_preview = True
-        )
+            bot.edit_message_text(
+                command_finish_text,
+                callback.message.chat.id,
+                callback.message.id,
+                parse_mode = MARKDOWN_PARSE_MODE,
+                disable_web_page_preview = True
+            )
     else:
-        if callback_data.startswith(REMOVE_SIZE_PREFIX):
-            item.sizes.remove(callback_data.removeprefix(REMOVE_SIZE_PREFIX))
+        if callback_data.startswith(BUTTON_DATA_PREFIX_REMOVE):
+            item.sizes.remove(callback_data.removeprefix(BUTTON_DATA_PREFIX_REMOVE))
             item.save()
             logger.log_inside_telegram_command(
                 logging.DEBUG,
@@ -316,22 +356,14 @@ def add_item_callback_handler_3(callback):
                 f" and item with url - ({item.url})."
             )
 
-        next_handler_number = get_callback_handler_number(callback)
-        buttons_data = get_button_texts_for_sizes(item)
-        rows = get_inline_button_rows(
+        buttons_data = get_buttons_data_for_sizes(item)
+        rows = get_inline_button_rows_with_finish(
             ADD_ITEM_COMMAND,
             buttons_data,
             handler_number = next_handler_number,
             extras = callback_extras
         )
-        reply_markup = get_inline_keyboard_markup(
-            *rows,
-            get_inline_finish_button_row(
-                ADD_ITEM_COMMAND,
-                handler_number = next_handler_number,
-                extras = callback_extras
-            )
-        )
+        reply_markup = get_inline_keyboard_markup(*rows)
 
         bot.edit_message_text(
             escape_string(ADD_ITEM__CHOOSE_SIZES_TEMPLATE.format(url = item.url)),
@@ -340,4 +372,64 @@ def add_item_callback_handler_3(callback):
             parse_mode = MARKDOWN_PARSE_MODE,
             disable_web_page_preview = True,
             reply_markup = reply_markup
+        )
+
+
+@bot.callback_query_handler(func = is_callback_handler(ADD_ITEM_COMMAND, 5))
+@logger.log_telegram_callback
+@cancel_button_in_callback
+def add_item_callback_handler_5(callback):
+    """Выбор цвета вещи."""
+
+    callback_data = get_callback_data(callback)
+    callback_extras = get_callback_extras(callback)
+    item = models.Item.objects.get(id = int(callback_extras))
+
+    if callback_data == FINISH_BUTTON_TEXT_EN:
+        command_finish_text = get_command_finish_text_without_color(item)
+
+        bot.edit_message_text(
+            command_finish_text,
+            callback.message.chat.id,
+            callback.message.id,
+            parse_mode = MARKDOWN_PARSE_MODE,
+            disable_web_page_preview = True
+        )
+    else:
+        item.color = callback_data
+        item.save()
+
+        if len(item.sizes_to_order) == 1:
+            command_finish_text = escape_string(
+                ADD_ITEM__ONE_SIZE_WITH_COLOR_TEMPLATE.format(
+                    item_name = item.name,
+                    url = item.url,
+                    sizes_to_order = item.sizes_to_order[0],
+                    color = item.color
+                )
+            )
+        elif len(item.sizes_to_order) > 1:
+            command_finish_text = escape_string(
+                ADD_ITEM__MANY_SIZES_WITH_COLOR_TEMPLATE.format(
+                    item_name = item.name,
+                    url = item.url,
+                    sizes_to_order = ", ".join(item.sizes_to_order),
+                    color = item.color
+                )
+            )
+        else:
+            command_finish_text = escape_string(
+                ADD_ITEM__NO_SIZES_WITH_COLOR_TEMPLATE.format(
+                    item_name = item.name,
+                    url = item.url,
+                    color = item.color
+                )
+            )
+
+        bot.edit_message_text(
+            command_finish_text,
+            callback.message.chat.id,
+            callback.message.id,
+            parse_mode = MARKDOWN_PARSE_MODE,
+            disable_web_page_preview = True
         )

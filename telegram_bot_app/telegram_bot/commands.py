@@ -31,3 +31,6 @@ REMOVE_ITEM_COMMAND_DESCRIPTION = "убрать вещь из отслежива
 
 CHANGE_ITEM_SIZES_COMMAND = "change_item_sizes"
 CHANGE_ITEM_SIZES_COMMAND_DESCRIPTION = "изменить заказываемые размеры вещи"
+
+CHANGE_ITEM_COLOR_COMMAND = "change_item_color"
+CHANGE_ITEM_COLOR_COMMAND_DESCRIPTION = "изменить заказываемый цвет вещи"

@@ -4,6 +4,7 @@ from telegram_bot_app.telegram_bot.handlers.commands.common import *
 logger = get_logger(__name__)
 
 
+# todo: добавить отображение выбранных размеров и цвета
 @bot.message_handler(commands = [TRACKED_ITEMS_COMMAND])
 @logger.log_telegram_command(TRACKED_ITEMS_COMMAND)
 def tracked_items_command(message):
@@ -41,7 +42,7 @@ def tracked_items_callback_handler(callback):
         *rows,
         *get_inline_button_rows(
             TRACKED_ITEMS_COMMAND,
-            {"всех типов": "all"},
+            ALL_ITEM_TYPES_BUTTONS_DATA,
             handler_number = next_handler_number,
             extras = buttons_extras
         ),

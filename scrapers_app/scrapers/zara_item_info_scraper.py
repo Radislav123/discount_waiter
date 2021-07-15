@@ -8,6 +8,7 @@ import copy
 logger = get_logger(__name__)
 NAME = "name"
 SIZES_ON_SITE = "sizes_on_site"
+COLORS_ON_SITE = "colors_on_site"
 
 
 # аттрибут == элемент
@@ -15,7 +16,8 @@ class ZaraItemInfoScraper:
     # информация, которая должна быть
     elements = {
         NAME: ['//*[@class = "product-detail-info__name"]'],
-        SIZES_ON_SITE: ['//*[@class = "product-detail-size-info__main-label"]']
+        SIZES_ON_SITE: ['//*[@class = "product-detail-size-info__main-label"]'],
+        COLORS_ON_SITE: ['//*[@class = "product-detail-color-selector__color-area"]/span']
     }
 
     def __init__(self, item):
@@ -36,6 +38,7 @@ class ZaraItemInfoScraper:
 
         self.item.name = self.get_item_name()
         self.item.sizes_on_site = self.get_sizes()
+        self.item.colors_on_site = self.get_colors()
 
     def get_page_html_tree(self):
         response = requests.get(self.item.url, headers = HEADERS)
@@ -48,17 +51,18 @@ class ZaraItemInfoScraper:
     def get_sizes(self):
         return [x.text for x in self.found_elements[SIZES_ON_SITE]] if self.item.has_sizes else []
 
+    def get_colors(self):
+        return [x.text for x in self.found_elements[COLORS_ON_SITE]] if self.item.has_colors else []
+
     @property
     def not_found_elements(self):
         needed_elements = copy.copy(list(self.elements.keys()))
         if not self.item.has_sizes:
             needed_elements.remove(SIZES_ON_SITE)
+        if not self.item.has_colors:
+            needed_elements.remove(COLORS_ON_SITE)
         return [x for x in needed_elements if x not in self.found_elements]
 
     @property
     def found_all_elements(self):
-        not_found_elements = self.not_found_elements
-        found_all_elements = len(not_found_elements) == 0
-        if len(not_found_elements) == 1 and SIZES_ON_SITE not in self.found_elements and not self.item.has_sizes:
-            found_all_elements = True
-        return found_all_elements
+        return len(self.not_found_elements) == 0
