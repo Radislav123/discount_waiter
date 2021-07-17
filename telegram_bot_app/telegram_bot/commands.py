@@ -34,3 +34,6 @@ CHANGE_ITEM_SIZES_COMMAND_DESCRIPTION = "изменить заказываемы
 
 CHANGE_ITEM_COLOR_COMMAND = "change_item_color"
 CHANGE_ITEM_COLOR_COMMAND_DESCRIPTION = "изменить заказываемый цвет вещи"
+
+CHANGE_ITEM_ORDER_PRICE_COMMAND = "change_item_order_price"
+CHANGE_ITEM_ORDER_PRICE_COMMAND_DESCRIPTION = "изменить цену, при которой вещь будет заказана"

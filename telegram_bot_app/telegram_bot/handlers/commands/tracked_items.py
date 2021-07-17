@@ -4,7 +4,7 @@ from telegram_bot_app.telegram_bot.handlers.commands.common import *
 logger = get_logger(__name__)
 
 
-# todo: добавить отображение выбранных размеров и цвета
+# todo: добавить отображение выбранных размеров и цвета и цену заказа
 @bot.message_handler(commands = [TRACKED_ITEMS_COMMAND])
 @logger.log_telegram_command(TRACKED_ITEMS_COMMAND)
 def tracked_items_command(message):

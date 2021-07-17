@@ -86,10 +86,12 @@ class Item(models.Model):
     name = models.CharField(max_length = 200)
     has_sizes = models.BooleanField()
     sizes = ArrayField(base_field = models.CharField(max_length = 20), blank = True)
-    sizes_on_site = ArrayField(base_field = models.CharField(max_length = 20), blank = True)
+    sizes_on_site = ArrayField(base_field = models.CharField(max_length = 20))
     has_colors = models.BooleanField()
     color = models.CharField(max_length = 20, blank = True)
-    colors_on_site = ArrayField(base_field = models.CharField(max_length = 20), blank = True)
+    colors_on_site = ArrayField(base_field = models.CharField(max_length = 20))
+    # вещь заказывается при стоимости ниже или равной полю order_price
+    order_price = models.IntegerField(blank = True)
 
     @property
     def sizes_to_order(self):
@@ -113,3 +115,12 @@ class Item(models.Model):
         site_domain = site_url_without_scheme.split('/')[0]
         if not self.url.startswith(f"{site_scheme}://{site_domain}/"):
             raise ValidationError(self.url_incorrect_domain_error_text)
+
+    @property
+    def order_price_is_not_digit_error_text(self):
+        return f"Order price ({self.order_price}) must be int or string representation of an int."
+
+    def validate_order_price(self):
+        # noinspection PyUnresolvedReferences
+        if type(self.order_price) is str and not self.order_price.isdigit():
+            raise ValidationError(self.order_price_is_not_digit_error_text)

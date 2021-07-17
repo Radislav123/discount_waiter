@@ -1,5 +1,4 @@
-from telegram_bot_app.telegram_bot.handlers.commands import change_item_sizes
-from telegram_bot_app.telegram_bot.handlers.commands import change_item_color
+from telegram_bot_app.telegram_bot.handlers.commands.change_item import color, sizes, order_price
 from telegram_bot_app.telegram_bot.handlers.commands import site_credentials
 from telegram_bot_app.telegram_bot.handlers.commands import tracked_sites
 from telegram_bot_app.telegram_bot.handlers.commands import tracked_items

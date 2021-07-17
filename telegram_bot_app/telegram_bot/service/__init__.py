@@ -16,7 +16,7 @@ commands = []
 
 
 def escape_string(string):
-    escape_characters = ['/', '.', '_', '-']
+    escape_characters = ['/', '.', '_', '-', '=']
     for character in escape_characters:
         string = string.replace(character, f"\\{character}")
     return string

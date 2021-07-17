@@ -31,7 +31,7 @@ ONE_ITEM_ALL_TYPES_DEFAULT_TEXT = "Ваша единственная вещь:"
 MANY_ITEMS_ALL_TYPES_DEFAULT_TEXT = "Ваши вещи:"
 NO_ITEMS_ALL_TYPES_DEFAULT_TEXT = "У Вас нет ни одной вещи."
 CHOOSE_SIZES_DEFAULT_TEMPLATE = f"Выберите размер или размеры из предложенных ниже," \
-                                           f" они взяты со [страницы вещи]({{url}})."
+                                f" они взяты со [страницы вещи]({{url}})."
 
 BOT_DESCRIPTION = f"Бот для отслеживания скидок.\n" \
                   f"Для просмотра списка команд введите '/' или '/{COMMAND_LIST_COMMAND}'."
@@ -92,17 +92,25 @@ ADD_ITEM__NOT_FOUND_INFORMATION_TEMPLATE = "Бот не нашел необхо�
 ADD_ITEM__CHOOSE_SIZES_TEMPLATE = "Выберите размер или размеры из предложенных ниже," \
                                   " они взяты со [страницы вещи]({url})."
 ADD_ITEM__CHOOSE_COLOR_TEMPLATE = "Выберите цвет из предложенных ниже, они взяты со [страницы вещи]({url})."
-ADD_ITEM__NO_SIZES_NO_COLOR_TEMPLATE = "Вещь - [{item_name}]({url}) - добавлена для отслеживания без размеров и цвета."
+ADD_ITEM__INPUT_ORDER_PRICE_TEMPLATE = "Введите цену [вещи]({url}) для заказа.\n" \
+                                       "Если введете \"1000\" вещь будет заказана, когда ее цена будет <= 1000."
+ADD_ITEM__INCORRECT_ORDER_PRICE_TEMPLATE = "Введенная цена - {order_price} - некорректна.\n" \
+                                           "Введите корректную цену [вещи]({url}) для заказа.\n" \
+                                           "Если введете \"1000\" вещь будет заказана, когда ее цена будет <= 1000."
+ADD_ITEM__NO_SIZES_NO_COLOR_TEMPLATE = "Вещь - [{item_name}]({url}) - добавлена для отслеживания без размеров и цвета" \
+                                       " с ценой для заказа {order_price}."
 ADD_ITEM__ONE_SIZE_NO_COLOR_TEMPLATE = "Вещь - [{item_name}]({url}) - добавлена для отслеживания" \
-                                       " с размером {sizes_to_order} без цвета."
+                                       " с размером {sizes_to_order} без цвета с ценой для заказа {order_price}."
 ADD_ITEM__MANY_SIZES_NO_COLOR_TEMPLATE = "Вещь - [{item_name}]({url}) - добавлена для отслеживания" \
-                                         " с размерами: {sizes_to_order} - без цвета."
+                                         " с размерами: {sizes_to_order} - без цвета с ценой для заказа {order_price}."
 ADD_ITEM__NO_SIZES_WITH_COLOR_TEMPLATE = "Вещь - [{item_name}]({url}) - добавлена для отслеживания без размеров" \
-                                         " с цветом {color}."
+                                         " с цветом {color} с ценой для заказа {order_price}."
 ADD_ITEM__ONE_SIZE_WITH_COLOR_TEMPLATE = "Вещь - [{item_name}]({url}) - добавлена для отслеживания" \
-                                         " с размером {sizes_to_order} с цветом {color}."
+                                         " с размером {sizes_to_order} с цветом {color}" \
+                                         " с ценой для заказа {order_price}."
 ADD_ITEM__MANY_SIZES_WITH_COLOR_TEMPLATE = "Вещь - [{item_name}]({url}) - добавлена для отслеживания" \
-                                           " с размерами: {sizes_to_order} - с цветом {color}."
+                                           " с размерами: {sizes_to_order} - с цветом {color}" \
+                                           " с ценой для заказа {order_price}."
 
 TRACKED_ITEMS__CHOOSE_SITE_TEXT = f"{CHOOSE_SITE_DEFAULT_TEXT}, вещи с которого хотите увидеть."
 TRACKED_ITEMS__HAVE_NO_SITES_TEXT = HAVE_NO_SITES_DEFAULT_TEXT
@@ -139,11 +147,11 @@ CHANGE_ITEM_SIZES__MANY_ITEMS_ALL_TYPES_TEXT = MANY_ITEMS_ALL_TYPES_DEFAULT_TEXT
 CHANGE_ITEM_SIZES__NO_ITEMS_ALL_TYPES_TEXT = NO_ITEMS_ALL_TYPES_DEFAULT_TEXT
 CHANGE_ITEM_SIZES__CHOOSE_SIZES_TEMPLATE = f"Выберите размер или размеры из предложенных ниже," \
                                            f" они взяты со [страницы вещи]({{url}})."
-CHANGE_ITEM_SIZES__ONE_SIZE_TEMPLATE = "Вещь - [{item_name}]({url}) - добавлена для отслеживания" \
-                                       " с размером {sizes_to_order}."
-CHANGE_ITEM_SIZES__MANY_SIZES_TEMPLATE = "Вещь - [{item_name}]({url}) - добавлена для отслеживания" \
-                                         " с размерами: {sizes_to_order}."
-CHANGE_ITEM_SIZES__NO_SIZES_TEMPLATE = "Вещь - [{item_name}]({url}) - добавлена для отслеживания без размеров."
+CHANGE_ITEM_SIZES__ONE_SIZE_TEMPLATE = "Вещь - [{item_name}]({url}) - сохранена" \
+                                       " для отслеживания с размером {sizes_to_order}."
+CHANGE_ITEM_SIZES__MANY_SIZES_TEMPLATE = "Вещь - [{item_name}]({url}) - сохранена" \
+                                         " для отслеживания с размерами: {sizes_to_order}."
+CHANGE_ITEM_SIZES__NO_SIZES_TEMPLATE = "Вещь - [{item_name}]({url}) - сохранена для отслеживания без размеров."
 
 CHANGE_ITEM_COLOR__CHOOSE_SITE_TEXT = f"{CHOOSE_SITE_DEFAULT_TEXT}," \
                                       f" заказываемый цвет вещи с которого хотите изменить."
@@ -158,8 +166,29 @@ CHANGE_ITEM_COLOR__MANY_ITEMS_ALL_TYPES_TEXT = MANY_ITEMS_ALL_TYPES_DEFAULT_TEXT
 CHANGE_ITEM_COLOR__NO_ITEMS_ALL_TYPES_TEXT = NO_ITEMS_ALL_TYPES_DEFAULT_TEXT
 CHANGE_ITEM_COLOR__CHOOSE_COLOR_TEMPLATE = f"Выберите цвет из предложенных ниже," \
                                            f" они взяты со [страницы вещи]({{url}})."
-CHANGE_ITEM_COLOR__COLOR_SET_TEMPLATE = "Вещь - [{item_name}]({url}) - сохранена с заказываемым цветом {color}."
-CHANGE_ITEM_COLOR__COLOR_UNSET_TEMPLATE = "Вещь - [{item_name}]({url}) - сохранена без заказываемого цвета."
+CHANGE_ITEM_COLOR__COLOR_SET_TEMPLATE = "Вещь - [{item_name}]({url}) - сохранена для отслеживания с цветом {color}."
+CHANGE_ITEM_COLOR__COLOR_UNSET_TEMPLATE = "Вещь - [{item_name}]({url}) - сохранена для отслеживания без цвета."
+
+CHANGE_ITEM_ORDER_PRICE__CHOOSE_SITE_TEXT = f"{CHOOSE_SITE_DEFAULT_TEXT}," \
+                                            f" заказываемую цену вещи с которого хотите изменить."
+CHANGE_ITEM_ORDER_PRICE__HAVE_NO_SITES_TEXT = HAVE_NO_SITES_DEFAULT_TEXT
+CHANGE_ITEM_ORDER_PRICE__CHOOSE_ITEM_TYPE_TEXT = "Выберите, у вещи какого типа из предложенных ниже" \
+                                                 " Вы хотите изменить заказываемую цену."
+CHANGE_ITEM_ORDER_PRICE__ONE_ITEM_TEMPLATE = ONE_ITEM_DEFAULT_TEMPLATE
+CHANGE_ITEM_ORDER_PRICE__MANY_ITEMS_TEMPLATE = MANY_ITEMS_DEFAULT_TEMPLATE
+CHANGE_ITEM_ORDER_PRICE__NO_ITEMS_TEMPLATE = NO_ITEMS_DEFAULT_TEMPLATE
+CHANGE_ITEM_ORDER_PRICE__ONE_ITEM_ALL_TYPES_TEXT = ONE_ITEM_ALL_TYPES_DEFAULT_TEXT
+CHANGE_ITEM_ORDER_PRICE__MANY_ITEMS_ALL_TYPES_TEXT = MANY_ITEMS_ALL_TYPES_DEFAULT_TEXT
+CHANGE_ITEM_ORDER_PRICE__NO_ITEMS_ALL_TYPES_TEXT = NO_ITEMS_ALL_TYPES_DEFAULT_TEXT
+CHANGE_ITEM_ORDER_PRICE__INPUT_ORDER_PRICE_TEMPLATE = "Введите новую цену [вещи]({url}) для заказа.\n" \
+                                                      "Если введете \"1000\" вещь будет заказана," \
+                                                      " когда ее цена будет <= 1000."
+CHANGE_ITEM_ORDER_PRICE__INCORRECT_ORDER_PRICE_TEMPLATE = "Введенная цена - {order_price} - некорректна.\n" \
+                                                          "Введите корректную цену [вещи]({url}) для заказа.\n" \
+                                                          "Если введете \"1000\" вещь будет заказана," \
+                                                          " когда ее цена будет <= 1000."
+CHANGE_ITEM_ORDER_PRICE__SUCCESS_FINISH_TEMPLATE = "Вещь - [{item_name}]({url}) - сохранена для отслеживания" \
+                                                   " с заказываемой ценой {order_price}."
 
 # первый аргумент - команда, которая связана с обратным вызовом
 # второй аргумент - номер хендлера (или шага)
