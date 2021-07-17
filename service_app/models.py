@@ -90,6 +90,7 @@ class Item(models.Model):
     has_colors = models.BooleanField()
     color = models.CharField(max_length = 20, blank = True)
     colors_on_site = ArrayField(base_field = models.CharField(max_length = 20))
+    current_price = models.IntegerField()
     # вещь заказывается при стоимости ниже или равной полю order_price
     order_price = models.IntegerField(blank = True)
 

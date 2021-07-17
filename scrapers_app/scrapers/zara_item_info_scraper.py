@@ -3,12 +3,14 @@ from scrapers_app.constants import *
 from lxml import html
 import requests
 import copy
+import re
 
 
 logger = get_logger(__name__)
 NAME = "name"
 SIZES_ON_SITE = "sizes_on_site"
 COLORS_ON_SITE = "colors_on_site"
+PRICE = "current_price"
 
 
 # аттрибут == элемент
@@ -17,7 +19,8 @@ class ZaraItemInfoScraper:
     elements = {
         NAME: ['//*[@class = "product-detail-info__name"]'],
         SIZES_ON_SITE: ['//*[@class = "product-detail-size-info__main-label"]'],
-        COLORS_ON_SITE: ['//*[@class = "product-detail-color-selector__color-area"]/span']
+        COLORS_ON_SITE: ['//*[@class = "product-detail-color-selector__color-area"]/span'],
+        PRICE: ['//*[@class = "price__amount-current"]']
     }
 
     def __init__(self, item):
@@ -39,6 +42,7 @@ class ZaraItemInfoScraper:
         self.item.name = self.get_item_name()
         self.item.sizes_on_site = self.get_sizes()
         self.item.colors_on_site = self.get_colors()
+        self.item.current_price = self.get_price()
 
     def get_page_html_tree(self):
         response = requests.get(self.item.url, headers = HEADERS)
@@ -53,6 +57,9 @@ class ZaraItemInfoScraper:
 
     def get_colors(self):
         return [x.text for x in self.found_elements[COLORS_ON_SITE]] if self.item.has_colors else []
+
+    def get_price(self):
+        return int(re.findall(r"\d+", self.found_elements[PRICE][0].text)[0])
 
     @property
     def not_found_elements(self):
