@@ -23,8 +23,8 @@ SITE_CREDENTIALS_COMMAND_DESCRIPTION = "показать логин и паро�
 ADD_ITEM_COMMAND = "add_item"
 ADD_ITEM_COMMAND_DESCRIPTION = "добавить вещь для отслеживания"
 
-TRACKED_ITEMS_COMMAND = "tracked_items"
-TRACKED_ITEMS_COMMAND_DESCRIPTION = "показать отслеживаемые вещи"
+ITEM_INFORMATION_COMMAND = "item_information"
+ITEM_INFORMATION_COMMAND_DESCRIPTION = "показать информацию о вещи"
 
 REMOVE_ITEM_COMMAND = "remove_item"
 REMOVE_ITEM_COMMAND_DESCRIPTION = "убрать вещь из отслеживаемых"

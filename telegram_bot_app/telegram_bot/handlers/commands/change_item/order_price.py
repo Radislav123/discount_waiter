@@ -1,4 +1,3 @@
-from telegram_bot_app.telegram_bot.handlers.commands.change_item import *
 from telegram_bot_app.telegram_bot.handlers.commands.common import *
 from django.core.exceptions import ValidationError
 
@@ -25,7 +24,12 @@ def change_item_order_price_command(message):
 def change_item_order_price_callback_handler(callback):
     """Получение сайта, заказываемая цена вещи с которого будет изменена."""
 
-    show_types_to_choose(CHANGE_ITEM_ORDER_PRICE_COMMAND, callback, 1, CHANGE_ITEM_ORDER_PRICE__CHOOSE_ITEM_TYPE_TEXT)
+    show_item_types_to_choose(
+        CHANGE_ITEM_ORDER_PRICE_COMMAND,
+        callback,
+        1,
+        CHANGE_ITEM_ORDER_PRICE__CHOOSE_ITEM_TYPE_TEXT
+    )
 
 
 @bot.callback_query_handler(func = is_callback_handler(CHANGE_ITEM_ORDER_PRICE_COMMAND, 1))

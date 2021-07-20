@@ -34,6 +34,7 @@ def site_credentials_callback_handler(callback):
     )
     message_text = f"логин : {link.login}\nпароль : {link.password}"
     bot.edit_message_text(message_text, callback.message.chat.id, callback.message.id)
+    # todo: попробовать задавать таймер на удаление в Телеграмме
     delayed_task(DELETE_SITE_CREDENTIALS_OFFSET, bot.delete_message, callback.message.chat.id, callback.message.id)
     logger.log_inside_telegram_command(
         logging.INFO,

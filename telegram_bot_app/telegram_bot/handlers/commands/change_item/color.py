@@ -1,4 +1,3 @@
-from telegram_bot_app.telegram_bot.handlers.commands.change_item import *
 from telegram_bot_app.telegram_bot.handlers.commands.common import *
 
 
@@ -24,7 +23,7 @@ def change_item_color_command(message):
 def change_item_color_callback_handler(callback):
     """Получение сайта, заказываемый цвет вещи с которого будет изменен."""
 
-    show_types_to_choose(CHANGE_ITEM_COLOR_COMMAND, callback, 1, CHANGE_ITEM_COLOR__CHOOSE_ITEM_TYPE_TEXT)
+    show_item_types_to_choose(CHANGE_ITEM_COLOR_COMMAND, callback, 1, CHANGE_ITEM_COLOR__CHOOSE_ITEM_TYPE_TEXT)
 
 
 @bot.callback_query_handler(func = is_callback_handler(CHANGE_ITEM_COLOR_COMMAND, 1))

@@ -115,15 +115,27 @@ ADD_ITEM__MANY_SIZES_WITH_COLOR_TEMPLATE = "Вещь - [{item_name}]({url}) - д
                                            " с размерами: {sizes_to_order} - с цветом {color}" \
                                            " с ценой для заказа {order_price}."
 
-TRACKED_ITEMS__CHOOSE_SITE_TEXT = f"{CHOOSE_SITE_DEFAULT_TEXT}, вещи с которого хотите увидеть."
-TRACKED_ITEMS__HAVE_NO_SITES_TEXT = HAVE_NO_SITES_DEFAULT_TEXT
-TRACKED_ITEMS__CHOOSE_ITEM_TYPE_TEXT = "Выберите, вещи какого типа из предложенных ниже хотите увидеть."
-TRACKED_ITEMS__ONE_ITEM_TEMPLATE = ONE_ITEM_DEFAULT_TEMPLATE
-TRACKED_ITEMS__MANY_ITEMS_TEMPLATE = MANY_ITEMS_DEFAULT_TEMPLATE
-TRACKED_ITEMS__NO_ITEMS_TEMPLATE = NO_ITEMS_DEFAULT_TEMPLATE
-TRACKED_ITEMS__ONE_ITEM_ALL_TYPES_TEXT = ONE_ITEM_ALL_TYPES_DEFAULT_TEXT
-TRACKED_ITEMS__MANY_ITEMS_ALL_TYPES_TEXT = MANY_ITEMS_ALL_TYPES_DEFAULT_TEXT
-TRACKED_ITEMS__NO_ITEMS_ALL_TYPES_TEXT = NO_ITEMS_ALL_TYPES_DEFAULT_TEXT
+# todo: rewrite url to item_url
+ITEM_INFORMATION__CHOOSE_SITE_TEXT = f"{CHOOSE_SITE_DEFAULT_TEXT}, информацию о вещи с которого хотите увидеть."
+ITEM_INFORMATION__HAVE_NO_SITES_TEXT = HAVE_NO_SITES_DEFAULT_TEXT
+ITEM_INFORMATION__CHOOSE_ITEM_TYPE_TEXT = "Выберите, информацию о вещи какого типа из предложенных ниже хотите увидеть."
+ITEM_INFORMATION__ONE_ITEM_TEMPLATE = ONE_ITEM_DEFAULT_TEMPLATE
+ITEM_INFORMATION__MANY_ITEMS_TEMPLATE = MANY_ITEMS_DEFAULT_TEMPLATE
+ITEM_INFORMATION__NO_ITEMS_TEMPLATE = NO_ITEMS_DEFAULT_TEMPLATE
+ITEM_INFORMATION__ONE_ITEM_ALL_TYPES_TEXT = ONE_ITEM_ALL_TYPES_DEFAULT_TEXT
+ITEM_INFORMATION__MANY_ITEMS_ALL_TYPES_TEXT = MANY_ITEMS_ALL_TYPES_DEFAULT_TEXT
+ITEM_INFORMATION__NO_ITEMS_ALL_TYPES_TEXT = NO_ITEMS_ALL_TYPES_DEFAULT_TEXT
+ITEM_INFORMATION__ITEM_INFORMATION_COMMON_PART_TEMPLATE = "Информация о вещи - [{item_name}]({url}):\n" \
+                                                          "\t- цена для заказа - {order_price}\n" \
+                                                          "\t- цена на сайте - {current_price}\n" \
+                                                          "\t- сайт - [{site_name}]({site_url})\n" \
+                                                          "\t- тип - {item_type}"
+ITEM_INFORMATION__ITEM_INFORMATION_SIZES_PART_TEMPLATE = "\t- размеры - {sizes}\n" \
+                                                         "\t- размеры на сайте- {sizes_on_site}"
+ITEM_INFORMATION__ITEM_INFORMATION_COLORS_PART_TEMPLATE = "\t- цвет - {color}\n" \
+                                                          "\t- цвета на сайте - {colors_on_site}"
+ITEM_INFORMATION__HIDE_ITEM_INFORMATION_BUTTON_TEXT = "Скрыть информацию о вещи"
+ITEM_INFORMATION__HIDE_ITEM_INFORMATION_TEXT = "Информация о вещи скрыта"
 
 REMOVE_ITEM__CHOOSE_SITE_TEXT = f"{CHOOSE_SITE_DEFAULT_TEXT}, вещь с которого хотите убрать из отслеживаемых."
 REMOVE_ITEM__HAVE_NO_SITES_TEXT = HAVE_NO_SITES_DEFAULT_TEXT
