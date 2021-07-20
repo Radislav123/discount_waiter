@@ -71,7 +71,7 @@ def change_item_sizes_callback_handler_2(callback):
     reply_markup = get_inline_keyboard_markup(*rows)
 
     bot.edit_message_text(
-        escape_string(CHANGE_ITEM_SIZES__CHOOSE_SIZES_TEMPLATE.format(url = item.url)),
+        escape_string(CHANGE_ITEM_SIZES__CHOOSE_SIZES_TEMPLATE.format(item_url = item.url)),
         callback.message.chat.id,
         callback.message.id,
         parse_mode = MARKDOWN_PARSE_MODE,
@@ -95,7 +95,7 @@ def change_item_sizes_callback_handler_3(callback):
             command_finish_text = escape_string(
                 CHANGE_ITEM_SIZES__ONE_SIZE_TEMPLATE.format(
                     item_name = item.name,
-                    url = item.url,
+                    item_url = item.url,
                     sizes_to_order = item.sizes_to_order[0]
                 )
             )
@@ -103,13 +103,13 @@ def change_item_sizes_callback_handler_3(callback):
             command_finish_text = escape_string(
                 CHANGE_ITEM_SIZES__MANY_SIZES_TEMPLATE.format(
                     item_name = item.name,
-                    url = item.url,
+                    item_url = item.url,
                     sizes_to_order = ", ".join(item.sizes_to_order)
                 )
             )
         else:
             command_finish_text = escape_string(
-                CHANGE_ITEM_SIZES__NO_SIZES_TEMPLATE.format(item_name = item.name, url = item.url)
+                CHANGE_ITEM_SIZES__NO_SIZES_TEMPLATE.format(item_name = item.name, item_url = item.url)
             )
 
         bot.edit_message_text(
@@ -158,7 +158,7 @@ def change_item_sizes_callback_handler_3(callback):
         )
 
         bot.edit_message_text(
-            escape_string(CHANGE_ITEM_SIZES__CHOOSE_SIZES_TEMPLATE.format(url = item.url)),
+            escape_string(CHANGE_ITEM_SIZES__CHOOSE_SIZES_TEMPLATE.format(item_url = item.url)),
             callback.message.chat.id,
             callback.message.id,
             parse_mode = MARKDOWN_PARSE_MODE,

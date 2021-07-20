@@ -76,7 +76,7 @@ def change_item_order_price_callback_handler_2(callback):
     )
 
     bot.edit_message_text(
-        escape_string(CHANGE_ITEM_ORDER_PRICE__INPUT_ORDER_PRICE_TEMPLATE.format(url = item.url)),
+        escape_string(CHANGE_ITEM_ORDER_PRICE__INPUT_ORDER_PRICE_TEMPLATE.format(item_url = item.url)),
         callback.message.chat.id,
         callback.message.id,
         parse_mode = MARKDOWN_PARSE_MODE,
@@ -102,7 +102,7 @@ def change_item_order_price_get_order_price_step(user_message, bot_message, item
             escape_string(
                 CHANGE_ITEM_ORDER_PRICE__SUCCESS_FINISH_TEMPLATE.format(
                     item_name = item.name,
-                    url = item.url,
+                    item_url = item.url,
                     order_price = item.order_price
                 )
             ),
@@ -116,7 +116,7 @@ def change_item_order_price_get_order_price_step(user_message, bot_message, item
             escape_string(
                 CHANGE_ITEM_ORDER_PRICE__INCORRECT_ORDER_PRICE_TEMPLATE.format(
                     order_price = item.order_price,
-                    url = item.url
+                    item_url = item.url
                 )
             ),
             bot_message.chat.id,

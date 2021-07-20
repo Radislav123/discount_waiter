@@ -118,7 +118,7 @@ def remove_item_callback_handler_2(callback):
     item = models.Item.objects.get(id = int(get_callback_data(callback)))
     item.delete()
     bot.edit_message_text(
-        escape_string(REMOVE_ITEM__SUCCESS_FINISH_TEMPLATE.format(item_name = item.name, url = item.url)),
+        escape_string(REMOVE_ITEM__SUCCESS_FINISH_TEMPLATE.format(item_name = item.name, item_url = item.url)),
         callback.message.chat.id,
         callback.message.id,
         parse_mode = MARKDOWN_PARSE_MODE,

@@ -164,7 +164,7 @@ def ask_sizes_color_order_price_or_finish(
             extras = buttons_extras
         )
         reply_markup = get_inline_keyboard_markup(*rows)
-        new_message_text = escape_string(ADD_ITEM__CHOOSE_SIZES_TEMPLATE.format(url = item.url))
+        new_message_text = escape_string(ADD_ITEM__CHOOSE_SIZES_TEMPLATE.format(item_url = item.url))
     elif item.has_colors and not color_asked:
         # выбор цвета
         rows = get_inline_button_rows_with_finish(
@@ -174,12 +174,12 @@ def ask_sizes_color_order_price_or_finish(
             extras = buttons_extras
         )
         reply_markup = get_inline_keyboard_markup(*rows)
-        new_message_text = escape_string(ADD_ITEM__CHOOSE_COLOR_TEMPLATE.format(url = item.url))
+        new_message_text = escape_string(ADD_ITEM__CHOOSE_COLOR_TEMPLATE.format(item_url = item.url))
     elif not order_price_asked:
         reply_markup = get_inline_keyboard_markup(
             get_inline_finish_button_row(ADD_ITEM_COMMAND, handler_number = 6, extras = item.id)
         )
-        new_message_text = escape_string(ADD_ITEM__INPUT_ORDER_PRICE_TEMPLATE.format(url = item.url))
+        new_message_text = escape_string(ADD_ITEM__INPUT_ORDER_PRICE_TEMPLATE.format(item_url = item.url))
         ask_order_price = True
     else:
         reply_markup = get_inline_keyboard_markup(*[])
@@ -241,7 +241,7 @@ def add_item_get_url_step(
             ask_sizes_color_order_price_or_finish(bot_message, item)
         else:
             new_bot_message_text = escape_string(
-                ADD_ITEM__NOT_FOUND_INFORMATION_TEMPLATE.format(url = item.url, site_url = site.address)
+                ADD_ITEM__NOT_FOUND_INFORMATION_TEMPLATE.format(item_url = item.url, site_url = site.address)
             )
             if previous_error_message_text != new_bot_message_text:
                 bot.edit_message_text(
@@ -282,7 +282,7 @@ def add_item_get_url_step(
         if error.message == item.url_incorrect_domain_error_text:
             new_bot_message_text = escape_string(
                 ADD_ITEM__INCORRECT_DOMAIN_TEMPLATE.format(
-                    url = user_message.text,
+                    item_url = user_message.text,
                     site_name = site.name,
                     site_url = site.address
                 )
@@ -330,7 +330,7 @@ def get_command_finish_text_without_color(item):
         command_finish_text = escape_string(
             ADD_ITEM__ONE_SIZE_NO_COLOR_TEMPLATE.format(
                 item_name = item.name,
-                url = item.url,
+                item_url = item.url,
                 sizes_to_order = item.sizes_to_order[0],
                 order_price = item.order_price
             )
@@ -339,7 +339,7 @@ def get_command_finish_text_without_color(item):
         command_finish_text = escape_string(
             ADD_ITEM__MANY_SIZES_NO_COLOR_TEMPLATE.format(
                 item_name = item.name,
-                url = item.url,
+                item_url = item.url,
                 sizes_to_order = ", ".join(item.sizes_to_order),
                 order_price = item.order_price
             )
@@ -348,7 +348,7 @@ def get_command_finish_text_without_color(item):
         command_finish_text = escape_string(
             ADD_ITEM__NO_SIZES_NO_COLOR_TEMPLATE.format(
                 item_name = item.name,
-                url = item.url,
+                item_url = item.url,
                 order_price = item.order_price
             )
         )
@@ -361,7 +361,7 @@ def get_command_finish_text_with_color(item):
         command_finish_text = escape_string(
             ADD_ITEM__ONE_SIZE_WITH_COLOR_TEMPLATE.format(
                 item_name = item.name,
-                url = item.url,
+                item_url = item.url,
                 sizes_to_order = item.sizes_to_order[0],
                 color = item.color,
                 order_price = item.order_price
@@ -371,7 +371,7 @@ def get_command_finish_text_with_color(item):
         command_finish_text = escape_string(
             ADD_ITEM__MANY_SIZES_WITH_COLOR_TEMPLATE.format(
                 item_name = item.name,
-                url = item.url,
+                item_url = item.url,
                 sizes_to_order = ", ".join(item.sizes_to_order),
                 color = item.color,
                 order_price = item.order_price
@@ -381,7 +381,7 @@ def get_command_finish_text_with_color(item):
         command_finish_text = escape_string(
             ADD_ITEM__NO_SIZES_WITH_COLOR_TEMPLATE.format(
                 item_name = item.name,
-                url = item.url,
+                item_url = item.url,
                 color = item.color,
                 order_price = item.order_price
             )
@@ -433,7 +433,7 @@ def add_item_callback_handler_4(callback):
         reply_markup = get_inline_keyboard_markup(*rows)
 
         bot.edit_message_text(
-            escape_string(ADD_ITEM__CHOOSE_SIZES_TEMPLATE.format(url = item.url)),
+            escape_string(ADD_ITEM__CHOOSE_SIZES_TEMPLATE.format(item_url = item.url)),
             callback.message.chat.id,
             callback.message.id,
             parse_mode = MARKDOWN_PARSE_MODE,
@@ -470,7 +470,7 @@ def add_item_get_order_price_step(user_message, bot_message, item):
     except ValidationError:
         bot.edit_message_text(
             escape_string(
-                ADD_ITEM__INCORRECT_ORDER_PRICE_TEMPLATE.format(order_price = item.order_price, url = item.url)
+                ADD_ITEM__INCORRECT_ORDER_PRICE_TEMPLATE.format(order_price = item.order_price, item_url = item.url)
             ),
             bot_message.chat.id,
             bot_message.id,

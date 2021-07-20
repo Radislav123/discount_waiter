@@ -61,7 +61,7 @@ def item_information_callback_handler_2(callback):
     item = models.Item.objects.get(id = int(get_callback_data(callback)))
     item_information_text = ITEM_INFORMATION__ITEM_INFORMATION_COMMON_PART_TEMPLATE.format(
         item_name = item.name,
-        url = item.url,
+        item_url = item.url,
         order_price = item.order_price,
         current_price = item.current_price,
         site_name = item.site.name,

@@ -71,7 +71,7 @@ def change_item_color_callback_handler_2(callback):
     reply_markup = get_inline_keyboard_markup(*rows)
 
     bot.edit_message_text(
-        escape_string(CHANGE_ITEM_COLOR__CHOOSE_COLOR_TEMPLATE.format(url = item.url)),
+        escape_string(CHANGE_ITEM_COLOR__CHOOSE_COLOR_TEMPLATE.format(item_url = item.url)),
         callback.message.chat.id,
         callback.message.id,
         parse_mode = MARKDOWN_PARSE_MODE,
@@ -95,13 +95,13 @@ def change_item_color_callback_handler_3(callback):
         item.color = ""
         item.save()
         command_finish_text = escape_string(
-            CHANGE_ITEM_COLOR__COLOR_UNSET_TEMPLATE.format(item_name = item.name, url = item.url)
+            CHANGE_ITEM_COLOR__COLOR_UNSET_TEMPLATE.format(item_name = item.name, item_url = item.url)
         )
     else:
         item.color = callback_data
         item.save()
         command_finish_text = escape_string(
-            CHANGE_ITEM_COLOR__COLOR_SET_TEMPLATE.format(item_name = item.name, url = item.url, color = callback_data)
+            CHANGE_ITEM_COLOR__COLOR_SET_TEMPLATE.format(item_name = item.name, item_url = item.url, color = callback_data)
         )
 
     bot.edit_message_text(
