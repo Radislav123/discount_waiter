@@ -1,4 +1,5 @@
 from telegram_bot_app.telegram_bot.handlers.commands.common import *
+from service_app.service import update_model_instance
 import logging
 
 

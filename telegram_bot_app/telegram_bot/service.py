@@ -4,7 +4,6 @@ from telegram_bot_app.telegram_bot.constants import *
 from discount_waiter.settings import BASE_DIR
 from secure.telegram_bot import API_TOKEN
 from service_app import models
-import platform
 # noinspection PyPackageRequirements
 import telebot
 import json
@@ -15,15 +14,12 @@ bot = telebot.TeleBot(API_TOKEN)
 commands = []
 
 
+# для параметра parse_mode = "MarkdownV2" в сообщениях Телеграмм-бота
 def escape_string(string):
     escape_characters = ['/', '.', '_', '-', '=']
     for character in escape_characters:
         string = string.replace(character, f"\\{character}")
     return string
-
-
-def get_platform():
-    return platform.node()
 
 
 def get_command_list_text():
@@ -236,13 +232,6 @@ def get_discount_hunter_tracked_items(discount_hunter, site = None, item_type = 
     else:
         tracked_items = models.Item.objects.filter(discount_hunter = discount_hunter)
     return tracked_items
-
-
-def update_model_instance(model, model_instance, filters):
-    update_data = model_instance.__dict__.copy()
-    del update_data["_state"]
-    del update_data["id"]
-    return model.objects.filter(**filters).update(**update_data)
 
 
 def get_discount_hunter(chat_id):

@@ -1,5 +1,8 @@
 from telegram_bot_app.telegram_bot.commands import *
+from datetime import timedelta
 
+
+CHECK_AND_ORDER_TIMEDELTA = timedelta(minutes = 5)
 
 MARKDOWN_PARSE_MODE = "MarkdownV2"
 

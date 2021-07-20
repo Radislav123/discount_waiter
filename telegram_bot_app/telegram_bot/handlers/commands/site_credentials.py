@@ -1,5 +1,5 @@
 from telegram_bot_app.telegram_bot.handlers.commands.common import *
-from telegram_bot.service.time_related import delayed_task
+from service_app.service.time_related import delayed_task
 import logging
 
 

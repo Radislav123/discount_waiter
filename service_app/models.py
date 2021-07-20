@@ -1,3 +1,4 @@
+from scrapers_app.scrapers.zara_item_info_scraper import ZaraItemInfoScraper
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
@@ -118,10 +119,28 @@ class Item(models.Model):
             raise ValidationError(self.url_incorrect_domain_error_text)
 
     @property
-    def order_price_is_not_digit_error_text(self):
+    def order_price_is_not_number_error_text(self):
         return f"Order price ({self.order_price}) must be int or string representation of an int."
 
     def validate_order_price(self):
         # noinspection PyUnresolvedReferences
         if type(self.order_price) is str and not self.order_price.isdigit():
-            raise ValidationError(self.order_price_is_not_digit_error_text)
+            raise ValidationError(self.order_price_is_not_number_error_text)
+
+    @classmethod
+    def check_and_order(cls, items = None):
+        # todo: отвязать от Зары и выбирать из сайтов в базе
+        elements_to_find = [ZaraItemInfoScraper.PRICE]
+        if items is None:
+            items = cls.objects.filter()
+        for item in items:
+            scraper = ZaraItemInfoScraper(item)
+            scraper.find_elements_on_page(elements_to_find)
+            scraper.init_item(elements_to_find)
+            item.save()
+            if item.current_price <= item.order_price:
+                item.order()
+
+    def order(self):
+        # todo: сообщать пользователю, что вещь заказана
+        pass

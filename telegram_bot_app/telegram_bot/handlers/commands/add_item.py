@@ -153,6 +153,7 @@ def ask_sizes_color_order_price_or_finish(
     # в extras передается id инстанса Item
     buttons_extras = item.id
     ask_order_price = False
+    finish = False
 
     if item.has_sizes and not sizes_asked:
         # выбор размеров
@@ -183,6 +184,7 @@ def ask_sizes_color_order_price_or_finish(
     else:
         reply_markup = get_inline_keyboard_markup(*[])
         new_message_text = get_command_finish_text(item)
+        finish = True
 
     bot.edit_message_text(
         new_message_text,
@@ -195,6 +197,9 @@ def ask_sizes_color_order_price_or_finish(
 
     if ask_order_price:
         bot.register_next_step_handler(bot_message, add_item_get_order_price_step, bot_message, item)
+
+    if finish:
+        models.Item.check_and_order([item])
 
 
 @logger.log_telegram_callback
@@ -230,7 +235,7 @@ def add_item_get_url_step(
         scraper.find_elements_on_page()
 
         if scraper.found_all_elements:
-            scraper.run()
+            scraper.init_item()
             item.save()
 
             ask_sizes_color_order_price_or_finish(bot_message, item)
