@@ -15,6 +15,7 @@ logger = get_logger(__name__)
 if __name__ == '__main__':
     set_bot_command_list()
     logger.info("bot command list was sent")
+    # todo: запускать проверку для каждого пользователя в своем потоке (распараллелить)
     add_job(check_and_order, CHECK_AND_ORDER_TIMEDELTA, browser)
     # check_and_order(browser)
     timeloop.start()
