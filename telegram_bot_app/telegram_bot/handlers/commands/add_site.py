@@ -31,7 +31,10 @@ def add_site_callback_handler(callback):
     tracking_site = get_tracked_site(get_callback_data(callback))
     if models.DiscountHunterSiteLink.objects.filter(
             discount_hunter = discount_hunter,
-            site = tracking_site
+            site = tracking_site,
+            # todo: add handler to set shop_address and shop_city
+            shop_city = "default",
+            shop_address = "default"
     ).count() == 0:
         link = models.DiscountHunterSiteLink(
             discount_hunter = discount_hunter,
@@ -43,7 +46,7 @@ def add_site_callback_handler(callback):
         link.active = True
 
     bot.edit_message_text(
-        escape_string(ADD_SITE__INPUT_LOGIN_TEMPLATE.format(site_name = link.site.name, site_url = link.site.address)),
+        escape_string(ADD_SITE__INPUT_LOGIN_TEMPLATE.format(site_name = link.site.name, site_url = link.site.url)),
         callback.message.chat.id,
         callback.message.id,
         parse_mode = MARKDOWN_PARSE_MODE,
@@ -63,7 +66,7 @@ def add_site_get_login_step(user_message, bot_message, link, update):
     bot.delete_message(user_message.chat.id, user_message.id)
     bot.edit_message_text(
         escape_string(
-            ADD_SITE__INPUT_PASSWORD_TEMPLATE.format(site_name = link.site.name, site_url = link.site.address)
+            ADD_SITE__INPUT_PASSWORD_TEMPLATE.format(site_name = link.site.name, site_url = link.site.url)
         ),
         bot_message.chat.id,
         bot_message.id,
@@ -103,7 +106,7 @@ def add_site_get_password_step(user_message, bot_message, link, update):
 
     bot.edit_message_text(
         escape_string(
-            ADD_SITE__SUCCESS_FINISH_TEMPLATE.format(site_name = link.site.name, site_url = link.site.address)
+            ADD_SITE__SUCCESS_FINISH_TEMPLATE.format(site_name = link.site.name, site_url = link.site.url)
         ),
         bot_message.chat.id,
         bot_message.id,

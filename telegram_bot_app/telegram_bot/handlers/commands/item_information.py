@@ -43,9 +43,9 @@ def item_information_callback_handler_1(callback):
     else:
         item_type = models.ItemType.objects.get(name_en = callback_data)
         texts = [
-            ITEM_INFORMATION__NO_ITEMS_TEMPLATE.format(item_type = item_type),
-            ITEM_INFORMATION__ONE_ITEM_TEMPLATE.format(item_type = item_type),
-            ITEM_INFORMATION__MANY_ITEMS_TEMPLATE.format(item_type = item_type)
+            ITEM_INFORMATION__NO_ITEMS_TEMPLATE.format(item_type_name = item_type.name_rus),
+            ITEM_INFORMATION__ONE_ITEM_TEMPLATE.format(item_type_name = item_type.name_rus),
+            ITEM_INFORMATION__MANY_ITEMS_TEMPLATE.format(item_type_name = item_type.name_rus)
         ]
 
     texts = list(map(escape_string, texts))
@@ -65,7 +65,7 @@ def item_information_callback_handler_2(callback):
         order_price = item.order_price,
         current_price = item.current_price,
         site_name = item.site.name,
-        site_url = item.site.address,
+        site_url = item.site.url,
         item_type = item.type.name_rus
     )
     if item.has_sizes:

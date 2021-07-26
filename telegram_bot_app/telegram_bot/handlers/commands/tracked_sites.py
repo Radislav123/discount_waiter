@@ -13,7 +13,7 @@ def tracked_sites_command(message):
         discount_hunter = get_discount_hunter(message.chat.id),
         active = True
     )
-    buttons_data = {link.site.name: link.site.address for link in links}
+    buttons_data = {link.site.name: link.site.url for link in links}
     rows = get_inline_button_rows(TRACKED_SITES_COMMAND, buttons_data, linked = True)
 
     if len(rows) > 0:

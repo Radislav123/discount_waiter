@@ -49,9 +49,9 @@ def change_item_order_price_callback_handler_1(callback):
     else:
         item_type = models.ItemType.objects.get(name_en = callback_data)
         texts = [
-            CHANGE_ITEM_ORDER_PRICE__NO_ITEMS_TEMPLATE.format(item_type = item_type),
-            CHANGE_ITEM_ORDER_PRICE__ONE_ITEM_TEMPLATE.format(item_type = item_type),
-            CHANGE_ITEM_ORDER_PRICE__MANY_ITEMS_TEMPLATE.format(item_type = item_type)
+            CHANGE_ITEM_ORDER_PRICE__NO_ITEMS_TEMPLATE.format(item_type_name = item_type.name_rus),
+            CHANGE_ITEM_ORDER_PRICE__ONE_ITEM_TEMPLATE.format(item_type_name = item_type.name_rus),
+            CHANGE_ITEM_ORDER_PRICE__MANY_ITEMS_TEMPLATE.format(item_type_name = item_type.name_rus)
         ]
 
     texts = list(map(escape_string, texts))

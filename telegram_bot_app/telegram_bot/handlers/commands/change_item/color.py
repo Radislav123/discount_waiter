@@ -43,9 +43,9 @@ def change_item_color_callback_handler_1(callback):
     else:
         item_type = models.ItemType.objects.get(name_en = callback_data)
         texts = [
-            CHANGE_ITEM_COLOR__NO_ITEMS_TEMPLATE.format(item_type = item_type),
-            CHANGE_ITEM_COLOR__ONE_ITEM_TEMPLATE.format(item_type = item_type),
-            CHANGE_ITEM_COLOR__MANY_ITEMS_TEMPLATE.format(item_type = item_type)
+            CHANGE_ITEM_COLOR__NO_ITEMS_TEMPLATE.format(item_type_name = item_type.name_rus),
+            CHANGE_ITEM_COLOR__ONE_ITEM_TEMPLATE.format(item_type_name = item_type.name_rus),
+            CHANGE_ITEM_COLOR__MANY_ITEMS_TEMPLATE.format(item_type_name = item_type.name_rus)
         ]
 
     texts = list(map(escape_string, texts))
@@ -94,9 +94,11 @@ def change_item_color_callback_handler_3(callback):
     if callback_data.startswith(BUTTON_DATA_PREFIX_REMOVE):
         item.color = ""
         item.save()
-        command_finish_text = escape_string(
-            CHANGE_ITEM_COLOR__COLOR_UNSET_TEMPLATE.format(item_name = item.name, item_url = item.url)
-        )
+        command_finish_text = CHANGE_ITEM_COLOR__COLOR_UNSET_TEMPLATE.format(item_name = item.name, item_url = item.url)
+        if item.has_colors:
+            command_finish_text += '\n' + CHANGE_ITEM_COLOR__NO_COLOR_PART_TEMPLATE.format(item_url = item.url)
+        command_finish_text = escape_string(command_finish_text)
+
     else:
         item.color = callback_data
         item.save()

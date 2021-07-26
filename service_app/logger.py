@@ -73,6 +73,7 @@ def get_user_identification(data):
     return user_identification
 
 
+# todo: rewrite logger to project class
 # использовать только там, где прописана логика (как telegram_bot_app.telegram_bot.server)
 def get_logger(logger_name):
     # создает папку для логов, если ее нет
@@ -82,6 +83,28 @@ def get_logger(logger_name):
     logger.addHandler(get_debug_handler())
     logger.addHandler(get_info_handler())
     logger.addHandler(get_console_handler())
+
+    def log_scraper_method(scraper_method):
+        def wrapper(*args, **kwargs):
+            log_extra = {
+                REAL_FUNCTION_NAME: scraper_method.__name__,
+                REAL_FILENAME: get_function_real_filename(scraper_method),
+                LOG_DECORATOR: True
+            }
+            logger.debug(
+                f"determines \"{scraper_method.__name__}\" scraper method call",
+                extra = log_extra
+            )
+            result = scraper_method(*args, **kwargs)
+            logger.debug(
+                f"finishes \"{scraper_method.__name__}\" scraper method",
+                extra = log_extra
+            )
+            return result
+
+        return wrapper
+
+    logger.log_scraper_method = log_scraper_method
 
     # для логирования начала и окончания выполнения команды Telegram-бота
     def log_telegram_command(command_name):

@@ -29,23 +29,32 @@ class ZaraItemInfoScraper:
         self.html_tree = self.get_page_html_tree()
         # найденная на странице информация
         self.found_elements = {}
+        # xpath-ы, по которым была найдена информация
+        self.found_elements_xpaths = {}
 
+    @logger.log_scraper_method
     def find_elements_on_page(self, elements = None):
         if elements is None:
             elements = self.elements.keys()
-        for attr_name in elements:
-            for element_xpath in self.elements[attr_name]:
-                attr_found_elements = self.html_tree.xpath(element_xpath)
-                if len(attr_found_elements) != 0:
-                    self.found_elements.update({attr_name: attr_found_elements})
+        for element_name in elements:
+            for element_xpath in self.elements[element_name]:
+                found_elements = self.html_tree.xpath(element_xpath)
+                if len(found_elements) != 0:
+                    self.found_elements.update({element_name: found_elements})
+                    self.found_elements_xpaths.update({element_name: element_xpath})
 
+    @logger.log_scraper_method
     def init_item(self, elements = None):
         if elements is None:
             elements = [self.NAME, self.SIZES_ON_SITE, self.COLORS_ON_SITE, self.PRICE]
-        self.item.name = self.get_name()
-        self.item.sizes_on_site = self.get_sizes()
-        self.item.colors_on_site = self.get_colors()
-        self.item.current_price = self.get_price()
+        if self.NAME in elements:
+            self.item.name = self.get_name()
+        if self.SIZES_ON_SITE in elements:
+            self.item.sizes_on_site = self.get_sizes()
+        if self.COLORS_ON_SITE in elements:
+            self.item.colors_on_site = self.get_colors()
+        if self.PRICE in elements:
+            self.item.current_price = self.get_price()
 
     def get_page_html_tree(self):
         response = requests.get(self.item.url, headers = HEADERS)
@@ -62,7 +71,7 @@ class ZaraItemInfoScraper:
         return [x.text for x in self.found_elements[self.COLORS_ON_SITE]] if self.item.has_colors else []
 
     def get_price(self):
-        return int(re.findall(r"\d+", self.found_elements[self.PRICE][0].text)[0])
+        return int("".join(re.findall(r"\d+", self.found_elements[self.PRICE][0].text)))
 
     @property
     def not_found_elements(self):

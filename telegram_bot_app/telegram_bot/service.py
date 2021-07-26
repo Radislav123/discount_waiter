@@ -15,10 +15,16 @@ commands = []
 
 
 # для параметра parse_mode = "MarkdownV2" в сообщениях Телеграмм-бота
-def escape_string(string):
+def escape_string(string, special_characters = None, escape_round_brackets = False):
     escape_characters = ['/', '.', '_', '-', '=']
     for character in escape_characters:
         string = string.replace(character, f"\\{character}")
+    if special_characters:
+        for special_character in special_characters:
+            string = string.replace(special_character, f"\\{special_character}")
+    if escape_round_brackets:
+        string = string.replace('(', "\\(")
+        string = string.replace(')', "\\)")
     return string
 
 
@@ -246,4 +252,20 @@ def get_discount_hunter_site_link(chat_id, site_name):
     return models.DiscountHunterSiteLink.objects.get(
         discount_hunter = get_discount_hunter(chat_id),
         site = get_tracked_site(site_name)
+    )
+
+
+def report_to_discount_hunter_in_telegram(ordered_items, link):
+    reply_markup = get_inline_keyboard_markup(
+        *get_inline_button_rows(
+            None,
+            {item.name: item.url for item in ordered_items},
+            linked = True
+        )
+    )
+
+    bot.send_message(
+        link.discount_hunter.telegram_chat_id,
+        SUCCESSFUL_ORDER_REPORT_TEXT,
+        reply_markup = reply_markup
     )

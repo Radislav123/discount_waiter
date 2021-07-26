@@ -30,7 +30,7 @@ def remove_site_callback_handler(callback):
     link.active = False
     link.save()
     bot.edit_message_text(
-        escape_string(REMOVE_SITE__SUCCESS_FINISH_TEMPLATE.format(site_name = site_name, site_url = link.site.address)),
+        escape_string(REMOVE_SITE__SUCCESS_FINISH_TEMPLATE.format(site_name = site_name, site_url = link.site.url)),
         callback.message.chat.id,
         callback.message.id,
         parse_mode = MARKDOWN_PARSE_MODE,

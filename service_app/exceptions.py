@@ -14,3 +14,7 @@ class ServiceAppException(DiscountWaiterException):
 
 class UnknownItemAttributeException(ServiceAppException):
     pass
+
+
+class UnknownSiteNameException(ServiceAppException):
+    pass

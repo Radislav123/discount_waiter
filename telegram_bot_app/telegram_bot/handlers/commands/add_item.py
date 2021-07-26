@@ -153,7 +153,6 @@ def ask_sizes_color_order_price_or_finish(
     # в extras передается id инстанса Item
     buttons_extras = item.id
     ask_order_price = False
-    finish = False
 
     if item.has_sizes and not sizes_asked:
         # выбор размеров
@@ -184,7 +183,6 @@ def ask_sizes_color_order_price_or_finish(
     else:
         reply_markup = get_inline_keyboard_markup(*[])
         new_message_text = get_command_finish_text(item)
-        finish = True
 
     bot.edit_message_text(
         new_message_text,
@@ -197,9 +195,6 @@ def ask_sizes_color_order_price_or_finish(
 
     if ask_order_price:
         bot.register_next_step_handler(bot_message, add_item_get_order_price_step, bot_message, item)
-
-    if finish:
-        models.Item.check_and_order([item])
 
 
 @logger.log_telegram_callback
@@ -241,7 +236,7 @@ def add_item_get_url_step(
             ask_sizes_color_order_price_or_finish(bot_message, item)
         else:
             new_bot_message_text = escape_string(
-                ADD_ITEM__NOT_FOUND_INFORMATION_TEMPLATE.format(item_url = item.url, site_url = site.address)
+                ADD_ITEM__NOT_FOUND_INFORMATION_TEMPLATE.format(item_url = item.url, site_url = site.url)
             )
             if previous_error_message_text != new_bot_message_text:
                 bot.edit_message_text(
@@ -284,7 +279,7 @@ def add_item_get_url_step(
                 ADD_ITEM__INCORRECT_DOMAIN_TEMPLATE.format(
                     item_url = user_message.text,
                     site_name = site.name,
-                    site_url = site.address
+                    site_url = site.url
                 )
             )
         if previous_error_message_text != new_bot_message_text:
@@ -327,66 +322,61 @@ def get_command_finish_text(item):
 
 def get_command_finish_text_without_color(item):
     if len(item.sizes_to_order) == 1:
-        command_finish_text = escape_string(
-            ADD_ITEM__ONE_SIZE_NO_COLOR_TEMPLATE.format(
-                item_name = item.name,
-                item_url = item.url,
-                sizes_to_order = item.sizes_to_order[0],
-                order_price = item.order_price
-            )
+        command_finish_text = ADD_ITEM__ONE_SIZE_NO_COLOR_TEMPLATE.format(
+            item_name = item.name,
+            item_url = item.url,
+            sizes_to_order = item.sizes_to_order[0],
+            order_price = item.order_price
         )
     elif len(item.sizes_to_order) > 1:
-        command_finish_text = escape_string(
-            ADD_ITEM__MANY_SIZES_NO_COLOR_TEMPLATE.format(
-                item_name = item.name,
-                item_url = item.url,
-                sizes_to_order = ", ".join(item.sizes_to_order),
-                order_price = item.order_price
-            )
+        command_finish_text = ADD_ITEM__MANY_SIZES_NO_COLOR_TEMPLATE.format(
+            item_name = item.name,
+            item_url = item.url,
+            sizes_to_order = ", ".join(item.sizes_to_order),
+            order_price = item.order_price
         )
     else:
-        command_finish_text = escape_string(
-            ADD_ITEM__NO_SIZES_NO_COLOR_TEMPLATE.format(
-                item_name = item.name,
-                item_url = item.url,
-                order_price = item.order_price
-            )
+        command_finish_text = ADD_ITEM__NO_SIZES_NO_COLOR_TEMPLATE.format(
+            item_name = item.name,
+            item_url = item.url,
+            order_price = item.order_price
         )
+        if item.has_sizes:
+            command_finish_text += '\n' + ADD_ITEM__NO_SIZES_PART_TEMPLATE.format(item_url = item.url)
 
-    return command_finish_text
+    if item.has_colors:
+        command_finish_text += '\n' + ADD_ITEM__NO_COLOR_PART_TEMPLATE.format(item_url = item.url)
+
+    return escape_string(command_finish_text, escape_round_brackets = True)
 
 
 def get_command_finish_text_with_color(item):
     if len(item.sizes_to_order) == 1:
-        command_finish_text = escape_string(
-            ADD_ITEM__ONE_SIZE_WITH_COLOR_TEMPLATE.format(
-                item_name = item.name,
-                item_url = item.url,
-                sizes_to_order = item.sizes_to_order[0],
-                color = item.color,
-                order_price = item.order_price
-            )
+        command_finish_text = ADD_ITEM__ONE_SIZE_WITH_COLOR_TEMPLATE.format(
+            item_name = item.name,
+            item_url = item.url,
+            sizes_to_order = item.sizes_to_order[0],
+            color = item.color,
+            order_price = item.order_price
         )
     elif len(item.sizes_to_order) > 1:
-        command_finish_text = escape_string(
-            ADD_ITEM__MANY_SIZES_WITH_COLOR_TEMPLATE.format(
-                item_name = item.name,
-                item_url = item.url,
-                sizes_to_order = ", ".join(item.sizes_to_order),
-                color = item.color,
-                order_price = item.order_price
-            )
+        command_finish_text = ADD_ITEM__MANY_SIZES_WITH_COLOR_TEMPLATE.format(
+            item_name = item.name,
+            item_url = item.url,
+            sizes_to_order = ", ".join(item.sizes_to_order),
+            color = item.color,
+            order_price = item.order_price
         )
     else:
-        command_finish_text = escape_string(
-            ADD_ITEM__NO_SIZES_WITH_COLOR_TEMPLATE.format(
-                item_name = item.name,
-                item_url = item.url,
-                color = item.color,
-                order_price = item.order_price
-            )
+        command_finish_text = ADD_ITEM__NO_SIZES_WITH_COLOR_TEMPLATE.format(
+            item_name = item.name,
+            item_url = item.url,
+            color = item.color,
+            order_price = item.order_price
         )
-    return command_finish_text
+        if item.has_sizes:
+            command_finish_text += '\n' + ADD_ITEM__NO_SIZES_PART_TEMPLATE.format(item_url = item.url)
+    return escape_string(command_finish_text, escape_round_brackets = True)
 
 
 @bot.callback_query_handler(func = is_callback_handler(ADD_ITEM_COMMAND, 4))

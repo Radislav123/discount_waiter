@@ -11,3 +11,5 @@ from telegram_bot_app.telegram_bot.handlers.commands import start
 from telegram_bot_app.telegram_bot.handlers.commands import help
 
 # todo: сделать статистику экономии денег на скидках (и другую статистику)
+# todo: add change_shop_address_command (should change shop_address and shop_city fields)
+# todo: add tracked_items_command

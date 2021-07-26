@@ -13,13 +13,13 @@ def add_item_types():
 
         if len(models.ItemType.objects.filter(name_en = name_en)) == 0:
             clothes_type.save()
-            log_message = f"{name_en} clothes type - successfully added to the db"
+            log_message = f"{name_en} clothes type successfully added to the db"
         else:
             update_data = clothes_type.__dict__.copy()
             del update_data["_state"]
             del update_data["id"]
             models.ItemType.objects.filter(name_en = name_en).update(**update_data)
-            log_message = f"{name_en} ({name_rus}) clothes type - successfully updated in the db"
+            log_message = f"{name_en} ({name_rus}) clothes type successfully updated in the db"
 
         logger.info(log_message)
         print(log_message)

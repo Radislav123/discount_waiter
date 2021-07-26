@@ -1,8 +1,4 @@
 from telegram_bot_app.telegram_bot.commands import *
-from datetime import timedelta
-
-
-CHECK_AND_ORDER_TIMEDELTA = timedelta(minutes = 5)
 
 MARKDOWN_PARSE_MODE = "MarkdownV2"
 
@@ -99,6 +95,8 @@ ADD_ITEM__INPUT_ORDER_PRICE_TEMPLATE = "Введите цену [вещи]({item
 ADD_ITEM__INCORRECT_ORDER_PRICE_TEMPLATE = "Введенная цена - {order_price} - некорректна.\n" \
                                            "Введите корректную цену [вещи]({item_url}) для заказа.\n" \
                                            "Если введете \"1000\" вещь будет заказана, когда ее цена будет <= 1000."
+ADD_ITEM__NO_SIZES_PART_TEMPLATE = "[Вещь]({item_url}) не будет заказана, пока не будут указаны размеры."
+ADD_ITEM__NO_COLOR_PART_TEMPLATE = "[Вещь]({item_url}) не будет заказана, пока не будет указан цвет."
 ADD_ITEM__NO_SIZES_NO_COLOR_TEMPLATE = "Вещь - [{item_name}]({item_url}) - добавлена для отслеживания" \
                                        " без размеров и цвета с ценой для заказа {order_price}."
 ADD_ITEM__ONE_SIZE_NO_COLOR_TEMPLATE = "Вещь - [{item_name}]({item_url}) - добавлена для отслеживания" \
@@ -163,6 +161,7 @@ CHANGE_ITEM_SIZES__ONE_SIZE_TEMPLATE = "Вещь - [{item_name}]({item_url}) - �
                                        " для отслеживания с размером {sizes_to_order}."
 CHANGE_ITEM_SIZES__MANY_SIZES_TEMPLATE = "Вещь - [{item_name}]({item_url}) - сохранена" \
                                          " для отслеживания с размерами: {sizes_to_order}."
+CHANGE_ITEM_SIZES__NO_SIZES_PART_TEMPLATE = ADD_ITEM__NO_SIZES_PART_TEMPLATE
 CHANGE_ITEM_SIZES__NO_SIZES_TEMPLATE = "Вещь - [{item_name}]({item_url}) - сохранена для отслеживания без размеров."
 
 CHANGE_ITEM_COLOR__CHOOSE_SITE_TEXT = f"{CHOOSE_SITE_DEFAULT_TEXT}," \
@@ -180,6 +179,7 @@ CHANGE_ITEM_COLOR__CHOOSE_COLOR_TEMPLATE = f"Выберите цвет из пр
                                            f" они взяты со [страницы вещи]({{item_url}})."
 CHANGE_ITEM_COLOR__COLOR_SET_TEMPLATE = "Вещь - [{item_name}]({item_url}) -" \
                                         " сохранена для отслеживания с цветом {color}."
+CHANGE_ITEM_COLOR__NO_COLOR_PART_TEMPLATE = ADD_ITEM__NO_COLOR_PART_TEMPLATE
 CHANGE_ITEM_COLOR__COLOR_UNSET_TEMPLATE = "Вещь - [{item_name}]({item_url}) - сохранена для отслеживания без цвета."
 
 CHANGE_ITEM_ORDER_PRICE__CHOOSE_SITE_TEXT = f"{CHOOSE_SITE_DEFAULT_TEXT}," \
@@ -202,6 +202,8 @@ CHANGE_ITEM_ORDER_PRICE__INCORRECT_ORDER_PRICE_TEMPLATE = "Введенная ц
                                                           " когда ее цена будет <= 1000."
 CHANGE_ITEM_ORDER_PRICE__SUCCESS_FINISH_TEMPLATE = "Вещь - [{item_name}]({item_url}) - сохранена для отслеживания" \
                                                    " с заказываемой ценой {order_price}."
+
+SUCCESSFUL_ORDER_REPORT_TEXT = "Ваши заказанные вещи:"
 
 # первый аргумент - команда, которая связана с обратным вызовом
 # второй аргумент - номер хендлера (или шага)
