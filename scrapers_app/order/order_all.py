@@ -33,10 +33,12 @@ def zara(link, site_data, browser):
 
     # выбор способа доставки
     # на этапе выбора способа доставки, способ по умолчанию - в магазин
-    wait.until(url_contains("/shipping/method-selection"))
-    click_next_button()
+    choose_shipping_method_path_part = "shipping-v2/method-selection"
+    wait.until(url_contains(choose_shipping_method_path_part))
+    # click_next_button()
 
     # выбор магазина для доставки
+    wait.until(presence_of_element_located((By.XPATH, '//*[contains(@class, "user-address-link")]'))).click()
     choose_shop_path_part = "/shipping/physical-stores"
     choose_payment_method_path_part = "/payment/selection"
     wait.until(url_contains(choose_shop_path_part))
@@ -44,15 +46,17 @@ def zara(link, site_data, browser):
     input_address_text_field = wait.until(presence_of_element_located((By.XPATH, address_form_xpath)))
     input_address_text_field.clear()
     input_address_text_field.send_keys(link.shop_city)
-    input_address_text_field.send_keys(Keys.RETURN)
+    input_address_text_field.send_keys(Keys.ENTER)
     shop_name_xpath = f'//*[@class = "location-search-location__title" and contains(text(), "{link.shop_address}")]'
     wait.until(presence_of_element_located((By.XPATH, shop_name_xpath)))
+    # элемент может быть не виден, тогда все сломается
     shop_address_element = wait.until(element_to_be_clickable((By.XPATH, shop_name_xpath)))
     # нужно кликнуть дважды (не опечатка)
     shop_address_element.click()
     shop_address_element.click()
-    # click_next_button()
-    browser.get(browser.current_url.replace(choose_shop_path_part, choose_payment_method_path_part))
+    click_next_button()
+    browser.get(browser.current_url.replace(choose_shop_path_part, choose_shipping_method_path_part))
+    click_next_button()
 
     # выбор способа оплаты
     wait.until(url_contains(choose_payment_method_path_part))

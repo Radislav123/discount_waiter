@@ -37,7 +37,7 @@ ZARA_DATA = SiteData(
     basket_url = "https://www.zara.com/ru/ru/shop/cart",
     login_field_xpath = '//*[@name = "logonId"]',
     password_field_xpath = '//*[@name = "password"]',
-    log_in_button_xpath = '//*[@class = "button logon-view__form-button"]',
+    log_in_button_xpath = '//button[contains(@class, "logon") and not(contains(@class, "alternate"))]',
     log_out_button_xpath = '//*[@class = "layout-user-sidebar-link__link layout-user-sidebar__logout-link"]',
     add_to_basket_button_xpath = '//*[@class = "button__lines-wrapper"]/*[contains(text(), "Добавить в корзину")]',
 )

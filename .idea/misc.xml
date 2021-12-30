@@ -3,7 +3,7 @@
   <component name="FrameworkDetectionExcludesConfiguration">
     <type id="django" />
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" project-jdk-name="Python 3.9 (discount_waiter_env)" project-jdk-type="Python SDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" project-jdk-name="Python 3.9 (discount_waiter)" project-jdk-type="Python SDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
 </project>
